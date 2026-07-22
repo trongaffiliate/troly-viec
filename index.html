@@ -8,66 +8,84 @@
 <meta name="apple-mobile-web-app-title" content="Trợ Lý Việc" />
 <style>
   :root{
-    --bg:#f6f7f9; --surface:#ffffff; --surface-2:#f1f2f5;
-    --text:#191b22; --muted:#6b6f7a; --faint:#a2a6b0;
-    --border:#e7e8ec; --border-strong:#d9dbe1;
-    --accent:#5b5bd6; --accent-hover:#4d4dc7; --accent-soft:#ecedfb;
+    --bg:#f7f8fb; --surface:#ffffff; --surface-2:#f2f3f7; --sidebar:#fbfbfe;
+    --text:#1a1c23; --muted:#6a6e7a; --faint:#9ea2ac; --line:#edeef3;
+    --border:#e9eaf0; --border-strong:#dcdee6;
+    --accent:#5b5bd6; --accent-2:#4341c9; --accent-hover:#4f4fce; --accent-soft:#ecedfb;
     --p1:#e5484d; --p1-soft:#fdecec;
     --p2:#c2760c; --p2-soft:#fbefda;
     --p3:#3b82f6; --p3-soft:#e8f0fe;
     --p4:#64748b; --p4-soft:#eef1f5;
     --fixed:#5b5bd6; --fixed-soft:#ecedfb;
     --habit:#0d9488; --habit-soft:#dbf4f0;
-    --done:#16a34a; --done-soft:#e6f6ec;
-    --now:#e5484d;
-    --shadow-sm:0 1px 2px rgba(20,22,40,.05);
-    --shadow:0 2px 8px rgba(20,22,40,.06), 0 14px 34px rgba(20,22,40,.07);
-    --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+    --done:#16a34a; --done-soft:#e6f6ec; --now:#e5484d;
+    --shadow-sm:0 1px 2px rgba(24,28,50,.05);
+    --shadow:0 1px 3px rgba(24,28,50,.06), 0 8px 24px rgba(24,28,50,.06);
+    --shadow-lg:0 2px 6px rgba(24,28,50,.08), 0 18px 44px rgba(24,28,50,.12);
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#0b0c11; --surface:#15161d; --surface-2:#1d1f28;
-      --text:#e9eaf0; --muted:#9498a4; --faint:#666a76;
-      --border:#25262f; --border-strong:#333541;
-      --accent:#8b8bf0; --accent-hover:#9a9af5; --accent-soft:#20213a;
-      --p1:#f2686c; --p1-soft:#331a1b;
-      --p2:#e0972f; --p2-soft:#332510;
-      --p3:#5b9bf7; --p3-soft:#152238;
-      --p4:#8b95a7; --p4-soft:#242833;
-      --fixed:#8b8bf0; --fixed-soft:#20213a;
-      --habit:#2dd0b8; --habit-soft:#0f2e29;
-      --done:#3fb96a; --done-soft:#123020;
-      --now:#f2686c;
-      --shadow-sm:0 1px 2px rgba(0,0,0,.3);
-      --shadow:0 2px 8px rgba(0,0,0,.4), 0 14px 34px rgba(0,0,0,.5);
+      --bg:#0b0c11; --surface:#14161d; --surface-2:#1c1f28; --sidebar:#101219;
+      --text:#e9eaf0; --muted:#9498a4; --faint:#666a76; --line:#20222c;
+      --border:#242732; --border-strong:#333747;
+      --accent:#8b8bf0; --accent-2:#6d6ce8; --accent-hover:#9a9af5; --accent-soft:#1e2039;
+      --p1:#f2686c; --p1-soft:#331a1b; --p2:#e0972f; --p2-soft:#332510; --p3:#5b9bf7; --p3-soft:#152238; --p4:#8b95a7; --p4-soft:#242833;
+      --fixed:#8b8bf0; --fixed-soft:#1e2039; --habit:#2dd0b8; --habit-soft:#0f2e29; --done:#3fb96a; --done-soft:#123020; --now:#f2686c;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.35); --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.4); --shadow-lg:0 2px 6px rgba(0,0,0,.5),0 18px 44px rgba(0,0,0,.55);
     }
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;font-size:15px}
-  .wrap{max-width:1040px;margin:0 auto;padding:22px 18px 90px}
   svg{display:block}
   button{font-family:inherit}
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  /* Header */
-  header{display:flex;align-items:center;gap:12px;margin-bottom:22px}
-  .logo{width:38px;height:38px;border-radius:11px;flex:none;background:linear-gradient(145deg,var(--accent),#4646b8);display:grid;place-items:center;color:#fff;box-shadow:var(--shadow-sm)}
-  .brand h1{font-size:17px;font-weight:700;margin:0;letter-spacing:-.3px}
-  .brand p{font-size:12.5px;color:var(--muted);margin:1px 0 0}
-  .grow{flex:1}
-  .icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:.14s}
-  .icon-btn:hover{color:var(--text);border-color:var(--border-strong)}
+  .app{display:flex;align-items:stretch;min-height:100vh}
 
-  /* Capture */
-  .capture{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 14px 12px;box-shadow:var(--shadow-sm);margin-bottom:20px}
-  .capture textarea{width:100%;border:0;resize:vertical;min-height:56px;background:transparent;color:var(--text);font-family:inherit;font-size:15.5px;outline:none;padding:2px 2px 6px}
+  /* Sidebar */
+  .sidebar{width:266px;flex:none;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:6px;padding:16px 13px;position:sticky;top:0;height:100vh;overflow:auto}
+  .brand{display:flex;align-items:center;gap:11px;padding:4px 6px 10px}
+  .logo{width:36px;height:36px;border-radius:10px;flex:none;background:linear-gradient(145deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:#fff;box-shadow:0 4px 12px -3px rgba(91,91,214,.5)}
+  .brand h1{font-size:15.5px;font-weight:700;margin:0;letter-spacing:-.2px}
+  .brand p{font-size:12px;color:var(--muted);margin:1px 0 0}
+  .newbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:11px;padding:11px;font-size:14px;font-weight:650;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 6px 16px -6px rgba(91,91,214,.7);margin-bottom:8px;transition:.15s}
+  .newbtn:hover{filter:brightness(1.05)}
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;transition:.13s}
+  .nav a svg{width:18px;height:18px;color:var(--faint);transition:.13s}
+  .nav a:hover{background:var(--surface-2);color:var(--text)}
+  .nav a.on{background:var(--accent-soft);color:var(--accent)}
+  .nav a.on svg{color:var(--accent)}
+  .side-sec{margin-top:14px}
+  .side-lbl{font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;padding:0 8px;margin-bottom:9px}
+  .legend{display:flex;flex-direction:column;gap:9px;padding:0 8px}
+  .legend .r{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted)}
+  .legend .dot{width:9px;height:9px;border-radius:3px;flex:none}
+  .mini{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 12px;margin-top:14px}
+  .mini .mh{font-size:12.5px;font-weight:700;margin-bottom:9px}
+  .mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;text-align:center}
+  .mgrid .w{font-size:9.5px;color:var(--faint);font-weight:700;padding-bottom:4px}
+  .mgrid .d{font-size:11.5px;color:var(--text);padding:4px 0;border-radius:7px;font-variant-numeric:tabular-nums;cursor:default}
+  .mgrid .d.mut{color:var(--faint)}
+  .mgrid .d.now{background:var(--accent);color:#fff;font-weight:700}
+  .side-foot{margin-top:auto;padding-top:12px}
+  .side-set{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border:0;background:transparent;width:100%}
+  .side-set svg{width:18px;height:18px;color:var(--faint)}
+  .side-set:hover{background:var(--surface-2);color:var(--text)}
+
+  /* Main */
+  .main{flex:1;min-width:0;padding:22px 28px 44px;max-width:1180px}
+  .capture{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 14px 11px;box-shadow:var(--shadow-sm);margin-bottom:20px}
+  .capture textarea{width:100%;border:0;resize:none;min-height:26px;max-height:140px;background:transparent;color:var(--text);font-family:inherit;font-size:15.5px;outline:none;padding:2px 2px 8px;overflow:auto}
   .capture textarea::placeholder{color:var(--faint)}
-  .capture-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:9px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer;transition:.14s;white-space:nowrap}
-  .btn-primary{background:var(--accent);color:#fff}
-  .btn-primary:hover{background:var(--accent-hover)}
-  .btn-primary:disabled{opacity:.6;cursor:default}
+  .cap-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:10px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer;transition:.14s;white-space:nowrap}
+  .btn svg{width:17px;height:17px}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 4px 12px -4px rgba(91,91,214,.6)}
+  .btn-primary:hover{filter:brightness(1.05)}
+  .btn-primary:disabled{opacity:.6;cursor:default;filter:none}
   .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
   .btn-secondary:hover{border-color:var(--border-strong)}
   .btn-ghost{background:transparent;color:var(--muted)}
@@ -78,106 +96,102 @@
   .mode-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--faint)}
   .mode-badge.on{color:var(--accent)} .mode-badge.on .dot{background:var(--accent)}
 
-  /* Tabs */
-  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto}
-  .tab{display:inline-flex;align-items:center;gap:7px;padding:11px 14px;border:0;background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;position:relative;flex:none}
-  .tab:hover{color:var(--text)}
-  .tab.active{color:var(--accent)}
-  .tab.active::after{content:'';position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--accent);border-radius:2px 2px 0 0}
+  .vhead{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .vhead h2{font-size:19px;font-weight:700;margin:0;letter-spacing:-.3px}
+  .vhead .sub{font-size:13.5px;color:var(--muted)}
+  .vhead .acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
 
-  /* Toolbar (Lịch) */
-  .cal-tools{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-
-  /* Calendar grid */
-  .cal-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:var(--shadow-sm)}
-  .cal{min-width:720px}
-  .cal-head,.cal-body{display:grid;grid-template-columns:56px repeat(7,minmax(94px,1fr))}
+  /* Calendar */
+  .cal-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow)}
+  .cal{min-width:680px}
+  .cal-head,.cal-body{display:grid;grid-template-columns:56px repeat(7,minmax(90px,1fr))}
   .cal-head{border-bottom:1px solid var(--border)}
-  .cal-head .dh{padding:10px 4px 9px;text-align:center;border-left:1px solid var(--border)}
+  .cal-head .dh{padding:11px 4px 10px;text-align:center;border-left:1px solid var(--line)}
+  .cal-head .dh.today{background:linear-gradient(to bottom,var(--accent-soft),transparent)}
   .cal-head .wd{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-  .cal-head .dn{font-size:15px;font-weight:600;margin-top:5px;color:var(--text)}
-  .cal-head .dh.today .dn{background:var(--accent);color:#fff;width:26px;height:26px;line-height:26px;border-radius:50%;display:inline-block}
+  .cal-head .dh.today .wd{color:var(--accent)}
+  .cal-head .dn{font-size:15.5px;font-weight:600;margin-top:5px;color:var(--text)}
+  .cal-head .dh.today .dn{background:var(--accent);color:#fff;width:27px;height:27px;line-height:27px;border-radius:50%;display:inline-block;box-shadow:0 3px 8px -2px rgba(91,91,214,.6)}
   .cal-gutter{position:relative}
-  .cal-gutter .hr{position:absolute;right:8px;font-size:10.5px;color:var(--faint);transform:translateY(-6px);font-variant-numeric:tabular-nums}
-  .cal-col{position:relative;border-left:1px solid var(--border);background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hh) - 1px),var(--border) calc(var(--hh) - 1px),var(--border) var(--hh))}
-  .nowline{position:absolute;left:0;right:0;height:2px;background:var(--now);z-index:3}
+  .cal-gutter .hr{position:absolute;right:9px;font-size:10.5px;color:var(--faint);transform:translateY(-6px);font-variant-numeric:tabular-nums}
+  .cal-col{position:relative;border-left:1px solid var(--line);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hh) - 1px),var(--line) calc(var(--hh) - 1px),var(--line) var(--hh))}
+  .cal-col.today{background-color:rgba(91,91,214,.035)}
+  .nowline{position:absolute;left:0;right:0;height:2px;background:var(--now);z-index:4}
   .nowline::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--now)}
-  .ev{--evc:var(--p3);--evbg:var(--p3-soft);position:absolute;border-radius:7px;padding:3px 7px;overflow:hidden;background:var(--evbg);border-left:3px solid var(--evc);z-index:1;min-height:20px;transition:box-shadow .12s}
-  .ev:hover{box-shadow:0 3px 10px rgba(20,22,40,.14);z-index:2}
+  .nowlabel{position:absolute;right:6px;transform:translateY(-50%);font-size:9.5px;font-weight:700;color:#fff;background:var(--now);padding:1px 5px;border-radius:5px;font-variant-numeric:tabular-nums}
+  .ev{--evc:var(--p3);--evbg:var(--p3-soft);position:absolute;border-radius:8px;padding:3px 7px;overflow:hidden;background:var(--evbg);border-left:3px solid var(--evc);z-index:1;min-height:20px;box-shadow:var(--shadow-sm);transition:box-shadow .12s,transform .12s}
+  .ev:hover{box-shadow:var(--shadow);transform:translateY(-1px);z-index:3}
   .ev.c-fixed{--evc:var(--fixed);--evbg:var(--fixed-soft)}
   .ev.c-habit{--evc:var(--habit);--evbg:var(--habit-soft)}
-  .ev.c-P1{--evc:var(--p1);--evbg:var(--p1-soft)}
-  .ev.c-P2{--evc:var(--p2);--evbg:var(--p2-soft)}
-  .ev.c-P3{--evc:var(--p3);--evbg:var(--p3-soft)}
-  .ev.c-P4{--evc:var(--p4);--evbg:var(--p4-soft)}
+  .ev.c-P1{--evc:var(--p1);--evbg:var(--p1-soft)} .ev.c-P2{--evc:var(--p2);--evbg:var(--p2-soft)} .ev.c-P3{--evc:var(--p3);--evbg:var(--p3-soft)} .ev.c-P4{--evc:var(--p4);--evbg:var(--p4-soft)}
+  .ev.solid{background:var(--evc);border-left:0;padding-left:8px;box-shadow:0 3px 9px -3px var(--evc)}
   .ev .et{font-size:10px;font-weight:700;color:var(--evc);line-height:1.15;font-variant-numeric:tabular-nums}
-  .ev .en{font-size:12px;font-weight:600;color:var(--text);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:16px}
+  .ev .en{font-size:12px;font-weight:600;color:var(--text);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:17px}
+  .ev.solid .et{color:rgba(255,255,255,.85)} .ev.solid .en{color:#fff}
   .ev.done{opacity:.5} .ev.done .en{text-decoration:line-through}
   .ev .dot{position:absolute;top:3px;right:4px;width:16px;height:16px;border-radius:5px;border:1.5px solid var(--evc);color:var(--evc);cursor:pointer;display:grid;place-items:center;background:var(--surface);opacity:.85}
+  .ev.solid .dot{border-color:rgba(255,255,255,.7);color:#fff;background:rgba(255,255,255,.16)}
   .ev .dot.on{background:var(--done);border-color:var(--done);color:#fff;opacity:1}
 
-  /* Section label + backlog rows */
   .section-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:20px 2px 9px}
-  .brow{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 12px;margin-bottom:8px}
+  .brow{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:8px;box-shadow:var(--shadow-sm)}
   .check{width:22px;height:22px;flex:none;border-radius:6px;border:1.6px solid var(--border-strong);cursor:pointer;display:grid;place-items:center;background:var(--surface);color:#fff;transition:.14s}
   .check.on{background:var(--done);border-color:var(--done)}
   .brow .bt{flex:1;min-width:0}
   .brow .bt .bn{font-size:14.5px;word-break:break-word}
   .brow.done .bn{text-decoration:line-through;color:var(--muted)}
   .brow .meta,.trow .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;align-items:center}
-  .pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap;letter-spacing:.1px}
-  .pill.cat{background:var(--surface-2);color:var(--muted)}
-  .pill.dur{background:var(--surface-2);color:var(--muted)}
+  .pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap}
+  .pill.cat,.pill.dur{background:var(--surface-2);color:var(--muted)}
   .pill.p-P1{background:var(--p1-soft);color:var(--p1)} .pill.p-P2{background:var(--p2-soft);color:var(--p2)} .pill.p-P3{background:var(--p3-soft);color:var(--p3)} .pill.p-P4{background:var(--p4-soft);color:var(--p4)}
-  .pill.late{background:var(--p1-soft);color:var(--p1)}
-  .mini{border:0;background:transparent;color:var(--faint);cursor:pointer;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;transition:.14s;flex:none}
-  .mini:hover{background:var(--surface-2);color:var(--text)}
+  .mini-b{border:0;background:transparent;color:var(--faint);cursor:pointer;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;transition:.14s;flex:none}
+  .mini-b:hover{background:var(--surface-2);color:var(--text)}
 
-  /* Tab Việc / Thói quen — quản lý */
-  .trow{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 12px;margin-bottom:9px}
-  .trow .top{display:flex;align-items:center;gap:10px}
+  .trow{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow-sm)}
+  .trow .top{display:flex;align-items:center;gap:11px}
   .trow input.title{flex:1;border:0;background:transparent;color:var(--text);font-size:14.5px;font-family:inherit;outline:none;min-width:0;font-weight:500}
-  .trow .ctrls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
-  .sel,.inp{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:8px;font-family:inherit;font-size:12.5px;padding:5px 7px;outline:none}
+  .trow .ctrls{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px;align-items:center}
+  .sel,.inp{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:8px;font-family:inherit;font-size:12.5px;padding:5px 8px;outline:none}
   .sel:focus,.inp:focus{border-color:var(--accent)}
   .lbl{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
   .fixed-time{display:none;gap:6px;align-items:center} .fixed-time.show{display:inline-flex}
   .filters{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
-  .chip{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;font-weight:600;font-family:inherit}
+  .chip{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:8px;padding:6px 13px;font-size:13px;cursor:pointer;font-weight:600;font-family:inherit}
   .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
   .chip.mini-chip{padding:4px 9px;font-size:12px}
   .switch{width:38px;height:22px;border-radius:999px;background:var(--border-strong);position:relative;cursor:pointer;flex:none;transition:.15s;border:0;padding:0}
   .switch.on{background:var(--accent)}
-  .switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}
+  .switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
   .switch.on::after{left:18px}
 
-  /* Báo cáo */
-  .report-actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 15px;box-shadow:var(--shadow-sm)}
-  .stat .n{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:15px 16px;box-shadow:var(--shadow-sm)}
+  .stat .n{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.6px}
   .stat .l{font-size:12px;color:var(--muted);margin-top:3px}
   .stat.done .n{color:var(--done)} .stat.plan .n{color:var(--accent)} .stat.late .n{color:var(--p1)}
-  .report-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow-sm)}
-  .report-card h2{font-size:15px;font-weight:700;margin:16px 0 8px} .report-card h2:first-child{margin-top:0}
-  .report-card ul{margin:6px 0 12px;padding-left:20px} .report-card li{margin:4px 0} .report-card p{margin:8px 0}
-  @media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}.cal-head,.cal-body{grid-template-columns:46px repeat(7,minmax(88px,1fr))}}
+  .report-actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .report-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:var(--shadow-sm)}
+  .report-card h2{font-size:15.5px;font-weight:700;margin:17px 0 8px} .report-card h2:first-child{margin-top:0}
+  .report-card ul{margin:6px 0 13px;padding-left:20px} .report-card li{margin:5px 0} .report-card p{margin:9px 0}
 
-  /* Empty */
-  .empty{text-align:center;color:var(--muted);padding:56px 20px}
-  .empty .ei{width:52px;height:52px;border-radius:14px;background:var(--surface-2);display:grid;place-items:center;margin:0 auto 14px;color:var(--faint)}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px}
+  .empty .ei{width:54px;height:54px;border-radius:15px;background:var(--surface-2);display:grid;place-items:center;margin:0 auto 15px;color:var(--faint)}
   .empty p{margin:0;font-size:14px;line-height:1.6}
 
+  /* Top bar + bottom nav (mobile) */
+  .topbar{display:none;align-items:center;gap:11px;padding:12px 16px;background:var(--sidebar);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+  .bottomnav{display:none}
+
   /* Modal */
-  .overlay{position:fixed;inset:0;background:rgba(15,17,30,.5);display:none;place-items:center;padding:16px;z-index:50;backdrop-filter:blur(2px)}
+  .overlay{position:fixed;inset:0;background:rgba(15,17,30,.55);display:none;place-items:center;padding:16px;z-index:50;backdrop-filter:blur(3px)}
   .overlay.open{display:grid}
-  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;max-width:480px;width:100%;padding:22px;box-shadow:var(--shadow);max-height:92vh;overflow:auto}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;max-width:480px;width:100%;padding:24px;box-shadow:var(--shadow-lg);max-height:92vh;overflow:auto}
   .modal h2{margin:0 0 3px;font-size:18px;font-weight:700}
-  .modal p.sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .modal p.subm{color:var(--muted);font-size:13px;margin:0 0 18px}
   .sec-title{font-size:12px;font-weight:700;color:var(--muted);margin:20px 0 10px;text-transform:uppercase;letter-spacing:.5px}
   .field{margin-bottom:12px}
   .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
-  .field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);font-family:inherit;font-size:14px;outline:none}
+  .field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;font-size:14px;outline:none}
   .field input:focus,.field select:focus{border-color:var(--accent)}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .checkrow{display:flex;gap:18px;align-items:center;font-size:14px;margin-bottom:12px;flex-wrap:wrap}
@@ -185,70 +199,75 @@
   .note{font-size:12.5px;color:var(--muted);background:var(--surface-2);padding:11px 13px;border-radius:10px;line-height:1.55}
   .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 
-  /* Toast */
-  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw;text-align:center}
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:11px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw;text-align:center}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:880px){
+    .app{flex-direction:column}
+    .sidebar{display:none}
+    .topbar{display:flex}
+    .main{max-width:none;padding:16px 15px 88px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .cal-head,.cal-body{grid-template-columns:46px repeat(7,minmax(84px,1fr))}
+    .bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:40;box-shadow:0 -4px 20px rgba(0,0,0,.05)}
+    .bottomnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;color:var(--faint);font-size:10.5px;font-weight:600;cursor:pointer}
+    .bottomnav a svg{width:21px;height:21px}
+    .bottomnav a.on{color:var(--accent)}
+  }
 </style>
 
-<div class="wrap">
-  <header>
-    <div class="logo" id="logo"></div>
+<div class="topbar" id="topbar"></div>
+
+<div class="app">
+  <aside class="sidebar">
     <div class="brand">
-      <h1>Trợ Lý Việc</h1>
-      <p id="subtitle">Trợ lý sắp lịch thông minh</p>
+      <div class="logo" id="logo"></div>
+      <div><h1>Trợ Lý Việc</h1><p id="brandDate"></p></div>
     </div>
-    <div class="grow"></div>
-    <button class="icon-btn" id="btnSettings" title="Cài đặt"></button>
-  </header>
-
-  <div class="capture">
-    <textarea id="input" placeholder="Ví dụ: Họp với đối tác 9h sáng mai 1 tiếng. Làm báo giá cho khách Hùng khoảng 2 tiếng, gấp, xong trước thứ sáu."></textarea>
-    <div class="capture-row">
-      <button class="btn btn-primary" id="btnAdd"></button>
-      <button class="btn btn-secondary mic" id="btnMic"></button>
-      <button class="btn btn-ghost" id="btnClear">Xoá</button>
-      <span class="mode-badge" id="modeBadge"><span class="dot"></span><span id="modeText">Chế độ cơ bản</span></span>
+    <button class="newbtn" id="newBtn"></button>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-sec"><div class="side-lbl">Nhóm việc</div>
+      <div class="legend">
+        <div class="r"><span class="dot" style="background:var(--fixed)"></span> Cuộc họp / cố định</div>
+        <div class="r"><span class="dot" style="background:var(--p1)"></span> Việc gấp</div>
+        <div class="r"><span class="dot" style="background:var(--p2)"></span> Quan trọng</div>
+        <div class="r"><span class="dot" style="background:var(--habit)"></span> Thói quen</div>
+      </div>
     </div>
-  </div>
+    <div class="mini" id="mini"></div>
+    <div class="side-foot"><button class="side-set" id="sideSet"></button></div>
+  </aside>
 
-  <div class="tabs" id="tabs"></div>
-  <div id="view"></div>
+  <main class="main">
+    <div class="capture">
+      <textarea id="input" rows="1" placeholder="Gõ hoặc nói ý tưởng… ví dụ: Họp đối tác 9h sáng mai 1 tiếng, làm báo giá cho khách Hùng ~2 tiếng, gấp."></textarea>
+      <div class="cap-row">
+        <button class="btn btn-primary" id="btnAdd"></button>
+        <button class="btn btn-secondary mic" id="btnMic"></button>
+        <button class="btn btn-ghost" id="btnClear">Xoá</button>
+        <span class="mode-badge" id="modeBadge"><span class="dot"></span><span id="modeText">Chế độ cơ bản</span></span>
+      </div>
+    </div>
+    <div id="view"></div>
+  </main>
 </div>
+
+<nav class="bottomnav" id="bottomnav"></nav>
 
 <div class="overlay" id="overlay">
   <div class="modal">
     <h2>Cài đặt</h2>
-    <p class="sub">Chỉnh giờ làm việc để trợ lý sắp lịch đúng nhịp của bạn.</p>
-
+    <p class="subm">Chỉnh giờ làm việc để trợ lý sắp lịch đúng nhịp của bạn.</p>
     <div class="sec-title">Giờ làm việc</div>
-    <div class="row2">
-      <div class="field"><label>Bắt đầu</label><input type="time" id="workStart"></div>
-      <div class="field"><label>Kết thúc</label><input type="time" id="workEnd"></div>
-    </div>
+    <div class="row2"><div class="field"><label>Bắt đầu</label><input type="time" id="workStart"></div><div class="field"><label>Kết thúc</label><input type="time" id="workEnd"></div></div>
     <div class="checkrow"><label><input type="checkbox" id="lunchOn"> Nghỉ trưa</label></div>
-    <div class="row2">
-      <div class="field"><label>Nghỉ từ</label><input type="time" id="lunchStart"></div>
-      <div class="field"><label>Đến</label><input type="time" id="lunchEnd"></div>
-    </div>
-    <div class="checkrow">
-      <label><input type="checkbox" id="workSat"> Làm thứ Bảy</label>
-      <label><input type="checkbox" id="workSun"> Làm Chủ nhật</label>
-    </div>
-
+    <div class="row2"><div class="field"><label>Nghỉ từ</label><input type="time" id="lunchStart"></div><div class="field"><label>Đến</label><input type="time" id="lunchEnd"></div></div>
+    <div class="checkrow"><label><input type="checkbox" id="workSat"> Làm thứ Bảy</label><label><input type="checkbox" id="workSun"> Làm Chủ nhật</label></div>
     <div class="sec-title">Trợ lý AI (không bắt buộc)</div>
     <div class="field"><label>Chìa khoá API (Anthropic)</label><input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off"></div>
-    <div class="field"><label>Mức trí tuệ AI</label>
-      <select id="model">
-        <option value="claude-opus-4-8">Cao cấp — thông minh nhất (mặc định)</option>
-        <option value="claude-haiku-4-5">Tiết kiệm — nhanh &amp; rẻ hơn</option>
-      </select>
-    </div>
+    <div class="field"><label>Mức trí tuệ AI</label><select id="model"><option value="claude-opus-4-8">Cao cấp — thông minh nhất (mặc định)</option><option value="claude-haiku-4-5">Tiết kiệm — nhanh &amp; rẻ hơn</option></select></div>
     <div class="note">Chìa khoá chỉ lưu trên máy này. Cách lấy: vào console.anthropic.com → mục API Keys → tạo key → dán vào đây.</div>
-
-    <div class="modal-actions">
-      <button class="btn btn-ghost" id="btnCloseSettings">Đóng</button>
-      <button class="btn btn-primary" id="btnSaveSettings">Lưu</button>
-    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" id="btnCloseSettings">Đóng</button><button class="btn btn-primary" id="btnSaveSettings">Lưu</button></div>
   </div>
 </div>
 
@@ -256,7 +275,7 @@
 
 <script>
 /* =========================================================================
-   TRỢ LÝ VIỆC — trợ lý tự động sắp lịch (kiểu Reclaim), chạy trên máy bạn.
+   TRỢ LÝ VIỆC — trợ lý tự động sắp lịch (layout sidebar cao cấp)
    ========================================================================= */
 const LS_TASKS='trolyviec_tasks_v2', LS_SET='trolyviec_set_v2', LS_HAB='trolyviec_hab_v2';
 const HORIZON=14;
@@ -269,7 +288,6 @@ let habitBlocks=[];
 let settings=Object.assign({apiKey:'',model:'claude-opus-4-8',workStart:'08:00',workEnd:'18:00',lunchOn:true,lunchStart:'12:00',lunchEnd:'13:30',workSat:true,workSun:false,buffer:10,maxChunk:120,minChunk:30}, load(LS_SET,{}));
 let currentTab='plan', taskFilter='chua', lastReport=null;
 
-/* ---------- Tiện ích ---------- */
 function load(k,def){ try{return JSON.parse(localStorage.getItem(k))??def;}catch(e){return def;} }
 function save(){ localStorage.setItem(LS_TASKS,JSON.stringify(tasks)); localStorage.setItem(LS_HAB,JSON.stringify(habits)); localStorage.setItem(LS_SET,JSON.stringify(settings)); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -286,8 +304,8 @@ function endHHMM(iso,min){ const d=new Date(Date.parse(iso)+min*60000); return p
 function setTimeMs(day,hhmmStr){ const [h,m]=hhmmStr.split(':').map(Number); const d=new Date(day); d.setHours(h,m,0,0); return d.getTime(); }
 function workDaysArr(){ const a=[1,2,3,4,5]; if(settings.workSat)a.push(6); if(settings.workSun)a.push(0); return a; }
 function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function durTxt(m){ return m<60?m+' phút':(m%60===0?(m/60)+' giờ':(Math.floor(m/60)+'h'+(m%60))); }
 
-/* ---------- Bộ icon nét (SVG) — thay cho emoji ---------- */
 const IC={
   calCheck:'<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M8.5 14.7l2.2 2.2 4.4-4.4"/>',
   cal:'<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
@@ -299,14 +317,11 @@ const IC={
   zap:'<path d="M13 2.5L4.5 13.5H11l-1 8L18.5 10H12l1-7.5z"/>',
   download:'<path d="M12 3.5v11M7.5 10l4.5 4.5L16.5 10M5 20.5h14"/>',
   settings:'<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.1"/><circle cx="15" cy="12" r="2.1"/><circle cx="8" cy="17" r="2.1"/>',
-  lock:'<rect x="5" y="10.5" width="14" height="9.5" rx="2.4"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>',
-  unlock:'<rect x="5" y="10.5" width="14" height="9.5" rx="2.4"/><path d="M8 10.5V7a4 4 0 0 1 7.7-1.6"/>',
   trash:'<path d="M4 7h16M9.5 7V5.3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V7M6.6 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6a1.5 1.5 0 0 0 1.5-1.4L17.4 7"/>',
   check:'<path d="M5 12.5l4.5 4.5L19 7"/>'
 };
 function svg(name,size){ const s=size||18; return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+IC[name]+'</svg>'; }
 
-/* ---------- Chuyển dữ liệu cũ ---------- */
 function migrate(){
   tasks.forEach(t=>{
     if(!t.priority || ['cao','vừa','thấp'].includes(t.priority)) t.priority={cao:'P1','vừa':'P3','thấp':'P4'}[t.priority]||'P3';
@@ -330,39 +345,24 @@ function migrate(){
   });
 }
 
-/* =========================================================================
-   BỘ MÁY SẮP LỊCH TỰ ĐỘNG
-   ========================================================================= */
+/* ---------- Bộ máy sắp lịch ---------- */
 function score(t){
   const pr={P1:100,P2:60,P3:30,P4:10}[t.priority]||30;
-  let urg=0;
-  if(t.due){ const days=(Date.parse(t.due+'T00:00:00')-today().getTime())/86400000; urg=Math.max(0,120-days*15); }
+  let urg=0; if(t.due){ const days=(Date.parse(t.due+'T00:00:00')-today().getTime())/86400000; urg=Math.max(0,120-days*15); }
   return pr+urg;
 }
 function dayWindows(day){
   const ws=setTimeMs(day,settings.workStart), we=setTimeMs(day,settings.workEnd);
   if(we<=ws) return [];
-  if(settings.lunchOn){
-    const ls=setTimeMs(day,settings.lunchStart), le=setTimeMs(day,settings.lunchEnd);
-    return [{s:ws,e:Math.min(ls,we)},{s:Math.max(le,ws),e:we}].filter(w=>w.e>w.s);
-  }
+  if(settings.lunchOn){ const ls=setTimeMs(day,settings.lunchStart), le=setTimeMs(day,settings.lunchEnd);
+    return [{s:ws,e:Math.min(ls,we)},{s:Math.max(le,ws),e:we}].filter(w=>w.e>w.s); }
   return [{s:ws,e:we}];
 }
 function subtract(free,busy){
   const res=[]; free.sort((a,b)=>a.s-b.s); busy=busy.slice().sort((a,b)=>a.s-b.s);
-  for(const f of free){
-    let segs=[{s:f.s,e:f.e}];
-    for(const b of busy){
-      const nx=[];
-      for(const seg of segs){
-        if(b.e<=seg.s||b.s>=seg.e){ nx.push(seg); continue; }
-        if(b.s>seg.s) nx.push({s:seg.s,e:b.s});
-        if(b.e<seg.e) nx.push({s:b.e,e:seg.e});
-      }
-      segs=nx;
-    }
-    res.push(...segs);
-  }
+  for(const f of free){ let segs=[{s:f.s,e:f.e}];
+    for(const b of busy){ const nx=[]; for(const seg of segs){ if(b.e<=seg.s||b.s>=seg.e){ nx.push(seg); continue; } if(b.s>seg.s) nx.push({s:seg.s,e:b.s}); if(b.e<seg.e) nx.push({s:b.e,e:seg.e}); } segs=nx; }
+    res.push(...segs); }
   return res.filter(x=>x.e-x.s>=60000).sort((a,b)=>a.s-b.s);
 }
 function buildFree(){
@@ -377,93 +377,55 @@ function buildFree(){
 function runScheduler(){
   tasks.forEach(t=>{ if(t.fixed&&t.fixedStart) t.blocks=[{start:t.fixedStart,min:t.durationMin}]; });
   tasks.forEach(t=>{ if(!t.fixed&&!t.locked&&t.status!=='done'){ t.blocks=[]; t._leftover=0; } });
-
   habitBlocks=[];
   const fixedHabitBusy=[], flexHabitOcc=[];
   for(const h of habits){ if(h.active===false) continue;
     for(let i=0;i<HORIZON;i++){ const day=addDays(today(),i); if(!(h.days||[]).includes(day.getDay())) continue;
       if(h.time){ const s=setTimeMs(day,h.time); if(i===0&&s<Date.now()) continue;
-        habitBlocks.push({habit:h,start:new Date(s).toISOString(),min:h.durationMin});
-        fixedHabitBusy.push({s,e:s+h.durationMin*60000});
-      } else { flexHabitOcc.push({h,day}); }
-    }
-  }
-
+        habitBlocks.push({habit:h,start:new Date(s).toISOString(),min:h.durationMin}); fixedHabitBusy.push({s,e:s+h.durationMin*60000});
+      } else { flexHabitOcc.push({h,day}); } } }
   let free=subtract(buildFree(), fixedHabitBusy);
   const BUF=settings.buffer||0, MAXC=settings.maxChunk||120, MINC=settings.minChunk||30;
-
-  for(const occ of flexHabitOcc){
-    const dayStr=ymd(occ.day), need=occ.h.durationMin;
+  for(const occ of flexHabitOcc){ const dayStr=ymd(occ.day), need=occ.h.durationMin;
     for(let k=0;k<free.length;k++){ const iv=free[k]; if(ymd(new Date(iv.s))!==dayStr) continue;
       const avail=(iv.e-iv.s)/60000; if(avail>=Math.min(need,MINC)){ const chunk=Math.min(need,avail);
         habitBlocks.push({habit:occ.h,start:new Date(iv.s).toISOString(),min:chunk});
-        const ns=iv.s+(chunk+BUF)*60000; if(ns>=iv.e) free.splice(k,1); else iv.s=ns; break; }
-    }
-  }
-
+        const ns=iv.s+(chunk+BUF)*60000; if(ns>=iv.e) free.splice(k,1); else iv.s=ns; break; } } }
   const list=tasks.filter(t=>!t.fixed&&!t.locked&&t.status!=='done').sort((a,b)=>score(b)-score(a));
   let unplaced=0;
-  for(const t of list){
-    let rem=t.durationMin||30; t.blocks=[]; let guard=0;
-    while(rem>0 && guard++<50){
-      const need=Math.min(MINC,rem);
-      const idx=free.findIndex(iv=>(iv.e-iv.s)/60000>=need);
-      if(idx<0) break;
-      const iv=free[idx]; const avail=Math.floor((iv.e-iv.s)/60000);
-      const chunk=Math.min(rem,MAXC,avail);
-      t.blocks.push({start:new Date(iv.s).toISOString(),min:chunk});
-      rem-=chunk; const ns=iv.s+(chunk+BUF)*60000;
-      if(ns>=iv.e) free.splice(idx,1); else iv.s=ns;
-    }
-    t._leftover=rem; if(rem>0) unplaced++;
-  }
+  for(const t of list){ let rem=t.durationMin||30; t.blocks=[]; let guard=0;
+    while(rem>0 && guard++<50){ const need=Math.min(MINC,rem); const idx=free.findIndex(iv=>(iv.e-iv.s)/60000>=need); if(idx<0) break;
+      const iv=free[idx]; const avail=Math.floor((iv.e-iv.s)/60000); const chunk=Math.min(rem,MAXC,avail);
+      t.blocks.push({start:new Date(iv.s).toISOString(),min:chunk}); rem-=chunk; const ns=iv.s+(chunk+BUF)*60000; if(ns>=iv.e) free.splice(idx,1); else iv.s=ns; }
+    t._leftover=rem; if(rem>0) unplaced++; }
   save(); return unplaced;
 }
 
-/* =========================================================================
-   AI (Claude)
-   ========================================================================= */
+/* ---------- AI ---------- */
 async function callClaude(system,userText,maxTokens,schema){
   const body={model:settings.model||'claude-opus-4-8',max_tokens:maxTokens,system,messages:[{role:'user',content:userText}]};
   if(schema) body.output_config={format:{type:'json_schema',schema}};
   const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
   if(!res.ok){ throw new Error('API '+res.status+': '+(await res.text()).slice(0,200)); }
-  const data=await res.json();
-  const b=(data.content||[]).find(x=>x.type==='text');
-  return b?b.text:'';
+  const data=await res.json(); const b=(data.content||[]).find(x=>x.type==='text'); return b?b.text:'';
 }
-const PARSE_SCHEMA={type:'object',properties:{tasks:{type:'array',items:{type:'object',properties:{
-  title:{type:'string'}, fixed:{type:'boolean'}, date:{type:'string'}, time:{type:'string'},
-  durationMin:{type:'integer'}, priority:{type:'string',enum:['P1','P2','P3','P4']}, category:{type:'string'}
-},required:['title','fixed','date','time','durationMin','priority','category'],additionalProperties:false}}},required:['tasks'],additionalProperties:false};
-
+const PARSE_SCHEMA={type:'object',properties:{tasks:{type:'array',items:{type:'object',properties:{title:{type:'string'},fixed:{type:'boolean'},date:{type:'string'},time:{type:'string'},durationMin:{type:'integer'},priority:{type:'string',enum:['P1','P2','P3','P4']},category:{type:'string'}},required:['title','fixed','date','time','durationMin','priority','category'],additionalProperties:false}}},required:['tasks'],additionalProperties:false};
 async function aiParse(text){
   const t=today();
   const sys=`Bạn là trợ lý sắp lịch cho người làm kinh doanh ở Việt Nam. Người dùng nói/gõ ý tưởng công việc bằng tiếng Việt (có thể nhiều việc). Tách thành các công việc riêng, mỗi việc gồm:
 - title: mô tả ngắn gọn tiếng Việt.
-- fixed: true nếu là cuộc hẹn/họp có giờ cố định; false nếu là việc linh hoạt.
+- fixed: true nếu là cuộc hẹn/họp có giờ cố định; false nếu linh hoạt.
 - date: "YYYY-MM-DD". Hôm nay ${ymd(t)} (${weekdayVN(t)}). Suy luận ngày tương đối. Nếu không rõ, để "".
 - time: "HH:MM" 24h nếu có giờ cụ thể, ngược lại "".
-- durationMin: thời lượng ước tính theo phút. "2 tiếng" = 120.
-- priority: P1 nếu gấp/khẩn, P2 nếu quan trọng, P4 nếu thong thả, còn lại P3.
+- durationMin: thời lượng ước tính theo phút. "2 tiếng"=120.
+- priority: P1 gấp/khẩn, P2 quan trọng, P4 thong thả, còn lại P3.
 - category: một trong ${CATS.join(', ')}.
 Chỉ trả về dữ liệu.`;
   let raw=(await callClaude(sys,text,1200,PARSE_SCHEMA)).replace(/```json|```/g,'').trim();
   const obj=JSON.parse(raw); const arr=Array.isArray(obj)?obj:(obj.tasks||[]);
-  return arr.map(x=>{
-    const hasTime=/^\d{1,2}:\d{2}$/.test(x.time||'');
-    let date=/^\d{4}-\d{2}-\d{2}$/.test(x.date||'')?x.date:null;
-    let fixed=!!x.fixed && hasTime;
-    if(fixed && !date) date=ymd(t);
-    return {id:uid(),title:(x.title||text).trim(),category:CATS.includes(x.category)?x.category:'Khác',
-      priority:['P1','P2','P3','P4'].includes(x.priority)?x.priority:'P3',
-      durationMin:Math.max(15,Math.min(480, +x.durationMin||30)),
-      due:(!fixed&&date)?date:null, fixed, fixedStart:fixed?date+'T'+x.time:null,
-      status:'chua',locked:false,blocks:[],createdAt:new Date().toISOString(),doneAt:null};
-  });
+  return arr.map(x=>{ const hasTime=/^\d{1,2}:\d{2}$/.test(x.time||''); let date=/^\d{4}-\d{2}-\d{2}$/.test(x.date||'')?x.date:null; let fixed=!!x.fixed&&hasTime; if(fixed&&!date) date=ymd(t);
+    return {id:uid(),title:(x.title||text).trim(),category:CATS.includes(x.category)?x.category:'Khác',priority:['P1','P2','P3','P4'].includes(x.priority)?x.priority:'P3',durationMin:Math.max(15,Math.min(480,+x.durationMin||30)),due:(!fixed&&date)?date:null,fixed,fixedStart:fixed?date+'T'+x.time:null,status:'chua',locked:false,blocks:[],createdAt:new Date().toISOString(),doneAt:null}; });
 }
-
-/* ---------- Bộ đọc tiếng Việt cơ bản ---------- */
 const WMAP={'chủ nhật':0,'cn':0,'thứ hai':1,'thu 2':1,'thứ 2':1,'t2':1,'thứ ba':2,'thứ 3':2,'t3':2,'thứ tư':3,'thứ 4':3,'t4':3,'thứ năm':4,'thứ 5':4,'t5':4,'thứ sáu':5,'thứ 6':5,'t6':5,'thứ bảy':6,'thứ 7':6,'t7':6};
 function nextWeekday(tg){ const t=today(); for(let i=0;i<7;i++){ const d=addDays(t,i); if(d.getDay()===tg) return d; } return t; }
 function detectDate(s){
@@ -477,115 +439,66 @@ function detectDate(s){
   if(m){ let d=+m[1],mo=+m[2]-1,y=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):today().getFullYear(); const dt=new Date(y,mo,d); if(!m[3]&&dt<today())dt.setFullYear(y+1); if(!isNaN(dt))return ymd(dt); }
   return null;
 }
-function detectTime(s){
-  const m=s.match(/(\d{1,2})\s*(?:h|giờ|:)\s*(\d{1,2})?/); if(!m) return null;
-  let h=+m[1],mi=m[2]?+m[2]:0; if(h>23||mi>59) return null;
-  const near=s.slice(Math.max(0,m.index-6),m.index+m[0].length+8);
-  if(/chiều|tối/.test(near)&&h<12)h+=12; else if(/sáng/.test(near)&&h===12)h=0;
-  return pad(h)+':'+pad(mi);
-}
-function detectDuration(s){
-  let m=s.match(/(\d+(?:[.,]\d+)?)\s*(tiếng|giờ|h\b)/); if(m) return Math.round(parseFloat(m[1].replace(',','.'))*60);
-  m=s.match(/(\d+)\s*phút/); if(m) return +m[1];
-  return null;
-}
-function detectPriority(s){
-  if(/gấp|khẩn|quan trọng nhất|ưu tiên|asap/.test(s)) return 'P1';
-  if(/quan trọng|cần|phải/.test(s)) return 'P2';
-  if(/khi rảnh|thong thả|không gấp|nhẹ nhàng/.test(s)) return 'P4';
-  return 'P3';
-}
-function detectCategory(s){
-  if(/họp|meeting/.test(s)) return 'Họp';
-  if(/gọi|call|điện thoại/.test(s)) return 'Gọi điện';
-  if(/email|mail/.test(s)) return 'Email';
-  if(/khách|client|đối tác/.test(s)) return 'Khách hàng';
-  if(/tiền|thanh toán|hoá đơn|hóa đơn|lương|ngân hàng|báo giá|tài chính/.test(s)) return 'Tài chính';
-  if(/nhân viên|tuyển|nhân sự|phỏng vấn/.test(s)) return 'Nhân sự';
-  if(/quảng cáo|marketing|fanpage|content|bài đăng/.test(s)) return 'Marketing';
-  return 'Khác';
-}
+function detectTime(s){ const m=s.match(/(\d{1,2})\s*(?:h|giờ|:)\s*(\d{1,2})?/); if(!m) return null; let h=+m[1],mi=m[2]?+m[2]:0; if(h>23||mi>59) return null; const near=s.slice(Math.max(0,m.index-6),m.index+m[0].length+8); if(/chiều|tối/.test(near)&&h<12)h+=12; else if(/sáng/.test(near)&&h===12)h=0; return pad(h)+':'+pad(mi); }
+function detectDuration(s){ let m=s.match(/(\d+(?:[.,]\d+)?)\s*(tiếng|giờ|h\b)/); if(m) return Math.round(parseFloat(m[1].replace(',','.'))*60); m=s.match(/(\d+)\s*phút/); if(m) return +m[1]; return null; }
+function detectPriority(s){ if(/gấp|khẩn|quan trọng nhất|ưu tiên|asap/.test(s)) return 'P1'; if(/quan trọng|cần|phải/.test(s)) return 'P2'; if(/khi rảnh|thong thả|không gấp|nhẹ nhàng/.test(s)) return 'P4'; return 'P3'; }
+function detectCategory(s){ if(/họp|meeting/.test(s)) return 'Họp'; if(/gọi|call|điện thoại/.test(s)) return 'Gọi điện'; if(/email|mail/.test(s)) return 'Email'; if(/khách|client|đối tác/.test(s)) return 'Khách hàng'; if(/tiền|thanh toán|hoá đơn|hóa đơn|lương|ngân hàng|báo giá|tài chính/.test(s)) return 'Tài chính'; if(/nhân viên|tuyển|nhân sự|phỏng vấn/.test(s)) return 'Nhân sự'; if(/quảng cáo|marketing|fanpage|content|bài đăng/.test(s)) return 'Marketing'; return 'Khác'; }
 function ruleParse(text){
   const parts=text.split(/\n+|(?<=[.!;])\s+/).map(x=>x.trim()).filter(x=>x.length>1);
-  return (parts.length?parts:[text.trim()]).map(t=>{
-    const s=t.toLowerCase();
-    const date=detectDate(s), time=detectTime(s);
-    const fixed=!!time; const fdate=date||(fixed?ymd(today()):null);
-    const cat=detectCategory(s);
-    return {id:uid(),title:t.replace(/\s+/g,' ').trim(),category:cat,priority:detectPriority(s),
-      durationMin:detectDuration(s)||(cat==='Họp'?60:30),
-      due:(!fixed&&date)?date:null, fixed, fixedStart:fixed?fdate+'T'+time:null,
-      status:'chua',locked:false,blocks:[],createdAt:new Date().toISOString(),doneAt:null};
-  });
+  return (parts.length?parts:[text.trim()]).map(t=>{ const s=t.toLowerCase(); const date=detectDate(s), time=detectTime(s); const fixed=!!time; const fdate=date||(fixed?ymd(today()):null); const cat=detectCategory(s);
+    return {id:uid(),title:t.replace(/\s+/g,' ').trim(),category:cat,priority:detectPriority(s),durationMin:detectDuration(s)||(cat==='Họp'?60:30),due:(!fixed&&date)?date:null,fixed,fixedStart:fixed?fdate+'T'+time:null,status:'chua',locked:false,blocks:[],createdAt:new Date().toISOString(),doneAt:null}; });
 }
-
 async function handleAdd(){
   const el=document.getElementById('input'); const text=el.value.trim(); if(!text){el.focus();return;}
   const btn=document.getElementById('btnAdd'); let added;
-  if(settings.apiKey){
-    btn.disabled=true; btn.innerHTML=svg('plus')+'<span>Đang phân tích…</span>';
+  if(settings.apiKey){ btn.disabled=true; btn.innerHTML=svg('plus')+'<span>Đang phân tích…</span>';
     try{ added=await aiParse(text); }catch(e){ console.warn(e); added=ruleParse(text); toast('AI bận — dùng chế độ cơ bản'); }
     btn.disabled=false; btn.innerHTML=svg('plus')+'<span>Thêm việc</span>';
-  }else{ added=ruleParse(text); }
-  tasks=added.concat(tasks);
-  const un=runScheduler();
-  el.value=''; currentTab='plan'; setActiveTab(); render();
+  } else added=ruleParse(text);
+  tasks=added.concat(tasks); const un=runScheduler(); el.value=''; autoGrow(); currentTab='plan'; setActiveNav(); render();
   toast('Đã thêm '+added.length+' việc'+(un?(' · '+un+' việc chưa có chỗ'):' và sắp vào lịch'));
 }
 
 /* =========================================================================
-   TAB LỊCH — lưới tuần
+   TAB LỊCH
    ========================================================================= */
 function evEl(e,sH,hh){
   const isTask=e.kind==='task';
   const done = isTask ? e.t.status==='done' : (e.h.doneDates||[]).includes(e.start.slice(0,10));
-  const cls = e.kind==='habit' ? 'c-habit' : (e.t.fixed ? 'c-fixed' : 'c-'+e.t.priority);
+  const solid = isTask && e.t.fixed;
+  const cls = e.kind==='habit' ? 'c-habit' : (e.t.fixed ? 'c-fixed solid' : 'c-'+e.t.priority);
   const ev=document.createElement('div'); ev.className='ev '+cls+(done?' done':'');
   const d0=new Date(e.start); const startMin=d0.getHours()*60+d0.getMinutes();
-  ev.style.top=((startMin-sH*60)/60*hh)+'px';
-  ev.style.height=Math.max(e.min/60*hh,22)+'px';
-  ev.style.left='calc('+(e._lane*(100/e._lc))+'% + 2px)';
-  ev.style.width='calc('+(100/e._lc)+'% - 4px)';
+  ev.style.top=((startMin-sH*60)/60*hh)+'px'; ev.style.height=Math.max(e.min/60*hh,22)+'px';
+  ev.style.left='calc('+(e._lane*(100/e._lc))+'% + 2px)'; ev.style.width='calc('+(100/e._lc)+'% - 4px)';
   const title = isTask ? e.t.title : e.h.title;
   ev.innerHTML='<div class="et">'+hhmm(e.start)+'</div><div class="en">'+escapeHtml(title)+'</div>';
   const dot=document.createElement('div'); dot.className='dot'+(done?' on':''); dot.innerHTML=done?svg('check',11):''; dot.title='Đánh dấu đã xong';
-  dot.onclick=(ev2)=>{ ev2.stopPropagation();
-    if(isTask){ e.t.status=done?'chua':'done'; e.t.doneAt=e.t.status==='done'?new Date().toISOString():null; }
-    else { const dd=e.start.slice(0,10); e.h.doneDates=e.h.doneDates||[]; if(done) e.h.doneDates=e.h.doneDates.filter(x=>x!==dd); else e.h.doneDates.push(dd); }
-    save(); render();
-  };
-  ev.appendChild(dot);
-  return ev;
+  dot.onclick=(ev2)=>{ ev2.stopPropagation(); if(isTask){ e.t.status=done?'chua':'done'; e.t.doneAt=e.t.status==='done'?new Date().toISOString():null; } else { const dd=e.start.slice(0,10); e.h.doneDates=e.h.doneDates||[]; if(done) e.h.doneDates=e.h.doneDates.filter(x=>x!==dd); else e.h.doneDates.push(dd); } save(); render(); };
+  ev.appendChild(dot); return ev;
 }
 function backlogRow(t){
   const row=document.createElement('div'); row.className='brow'+(t.status==='done'?' done':'');
   const chk=document.createElement('div'); chk.className='check'+(t.status==='done'?' on':''); chk.innerHTML=t.status==='done'?svg('check',14):'';
   chk.onclick=()=>{ t.status=t.status==='done'?'chua':'done'; t.doneAt=t.status==='done'?new Date().toISOString():null; save(); render(); };
-  const bt=document.createElement('div'); bt.className='bt';
-  bt.innerHTML='<div class="bn">'+escapeHtml(t.title)+'</div>';
-  const meta=document.createElement('div'); meta.className='meta';
-  meta.appendChild(pill('p-'+t.priority,PR_LABEL[t.priority]));
-  meta.appendChild(pill('dur',durTxt(t.durationMin)));
-  meta.appendChild(pill('cat',t.category));
-  bt.appendChild(meta);
-  const del=document.createElement('button'); del.className='mini'; del.innerHTML=svg('trash',17); del.title='Xoá';
-  del.onclick=()=>{ if(confirm('Xoá việc này?')){ tasks=tasks.filter(x=>x.id!==t.id); save(); render(); } };
+  const bt=document.createElement('div'); bt.className='bt'; bt.innerHTML='<div class="bn">'+escapeHtml(t.title)+'</div>';
+  const meta=document.createElement('div'); meta.className='meta'; meta.appendChild(pill('p-'+t.priority,PR_LABEL[t.priority])); meta.appendChild(pill('dur',durTxt(t.durationMin))); meta.appendChild(pill('cat',t.category)); bt.appendChild(meta);
+  const del=document.createElement('button'); del.className='mini-b'; del.innerHTML=svg('trash',17); del.title='Xoá'; del.onclick=()=>{ if(confirm('Xoá việc này?')){ tasks=tasks.filter(x=>x.id!==t.id); save(); render(); } };
   row.appendChild(chk); row.appendChild(bt); row.appendChild(del); return row;
 }
 function pill(cls,txt){ const s=document.createElement('span'); s.className='pill '+cls; s.textContent=txt; return s; }
-function durTxt(m){ return m<60?m+' phút':(m%60===0?(m/60)+' giờ':(Math.floor(m/60)+'h'+(m%60))); }
+function fmtRange(){ const a=today(), b=addDays(a,6); if(a.getMonth()===b.getMonth()) return a.getDate()+' – '+b.getDate()+' tháng '+(b.getMonth()+1); return a.getDate()+'/'+(a.getMonth()+1)+' – '+b.getDate()+'/'+(b.getMonth()+1); }
 
 function renderPlan(view){
-  const tools=document.createElement('div'); tools.className='cal-tools';
+  const head=document.createElement('div'); head.className='vhead';
+  head.innerHTML='<div><h2>Tuần này</h2><span class="sub">'+fmtRange()+'</span></div>';
+  const acts=document.createElement('div'); acts.className='acts';
   const b=document.createElement('button'); b.className='btn btn-primary'; b.innerHTML=svg('zap')+'<span>Lên lịch tự động</span>';
   b.onclick=()=>{ const un=runScheduler(); render(); toast(un?('Đã sắp lịch · '+un+' việc chưa có chỗ'):'Đã sắp lịch xong'); };
-  const ics=document.createElement('button'); ics.className='btn btn-secondary'; ics.innerHTML=svg('download')+'<span>Xuất Google (.ics)</span>'; ics.title='Xuất file lịch nạp vào Google Calendar'; ics.onclick=exportICS;
-  tools.appendChild(b); tools.appendChild(ics); view.appendChild(tools);
+  const ics=document.createElement('button'); ics.className='btn btn-secondary'; ics.innerHTML=svg('download')+'<span>Xuất .ics</span>'; ics.title='Xuất file lịch nạp vào Google Calendar'; ics.onclick=exportICS;
+  acts.appendChild(b); acts.appendChild(ics); head.appendChild(acts); view.appendChild(head);
 
-  if(tasks.length===0 && habits.length===0){
-    view.appendChild(emptyState('cal','Lịch còn trống. Gõ hoặc bấm Nói để thêm việc đầu tiên.'));
-    return;
-  }
+  if(tasks.length===0 && habits.length===0){ view.appendChild(emptyState('cal','Lịch còn trống. Gõ hoặc bấm Nói để thêm việc đầu tiên.')); return; }
 
   const idxOf={}; for(let i=0;i<7;i++) idxOf[ymd(addDays(today(),i))]=i;
   const cols=[[],[],[],[],[],[],[]];
@@ -600,25 +513,20 @@ function renderPlan(view){
 
   const scroll=document.createElement('div'); scroll.className='cal-scroll';
   const cal=document.createElement('div'); cal.className='cal'; cal.style.setProperty('--hh',hh+'px');
-
-  const head=document.createElement('div'); head.className='cal-head';
-  head.appendChild(document.createElement('div'));
+  const chead=document.createElement('div'); chead.className='cal-head'; chead.appendChild(document.createElement('div'));
   const WDS=['CN','T2','T3','T4','T5','T6','T7'];
-  for(let i=0;i<7;i++){ const day=addDays(today(),i);
-    const dh=document.createElement('div'); dh.className='dh'+(i===0?' today':'');
-    dh.innerHTML='<div class="wd">'+WDS[day.getDay()]+'</div><div class="dn">'+day.getDate()+'</div>';
-    head.appendChild(dh);
-  }
-  cal.appendChild(head);
+  for(let i=0;i<7;i++){ const day=addDays(today(),i); const dh=document.createElement('div'); dh.className='dh'+(i===0?' today':''); dh.innerHTML='<div class="wd">'+WDS[day.getDay()]+'</div><div class="dn">'+day.getDate()+'</div>'; chead.appendChild(dh); }
+  cal.appendChild(chead);
 
   const body=document.createElement('div'); body.className='cal-body';
   const gut=document.createElement('div'); gut.className='cal-gutter'; gut.style.height=totalH+'px';
   for(let h=sH;h<=eH;h++){ const l=document.createElement('div'); l.className='hr'; l.style.top=((h-sH)*hh)+'px'; l.textContent=pad(h)+':00'; gut.appendChild(l); }
+  const nowMin=new Date().getHours()*60+new Date().getMinutes();
+  if(nowMin>=sH*60 && nowMin<=eH*60){ const nlab=document.createElement('div'); nlab.className='nowlabel'; nlab.style.top=((nowMin-sH*60)/60*hh)+'px'; nlab.textContent=pad(new Date().getHours())+':'+pad(new Date().getMinutes()); gut.appendChild(nlab); }
   body.appendChild(gut);
 
-  const nowMin=new Date().getHours()*60+new Date().getMinutes();
   for(let i=0;i<7;i++){
-    const col=document.createElement('div'); col.className='cal-col'; col.style.height=totalH+'px';
+    const col=document.createElement('div'); col.className='cal-col'+(i===0?' today':''); col.style.height=totalH+'px';
     const evs=cols[i].map(e=>Object.assign({},e,{_s:Date.parse(e.start),_e:Date.parse(e.start)+e.min*60000})).sort((a,b)=>a._s-b._s);
     let cl=[],curEnd=0; const clusters=[];
     evs.forEach(e=>{ if(cl.length && e._s>=curEnd){ clusters.push(cl); cl=[]; curEnd=0; } cl.push(e); curEnd=Math.max(curEnd,e._e); });
@@ -628,42 +536,31 @@ function renderPlan(view){
     if(i===0 && nowMin>=sH*60 && nowMin<=eH*60){ const nl=document.createElement('div'); nl.className='nowline'; nl.style.top=((nowMin-sH*60)/60*hh)+'px'; col.appendChild(nl); }
     body.appendChild(col);
   }
-  cal.appendChild(body);
-  scroll.appendChild(cal); view.appendChild(scroll);
+  cal.appendChild(body); scroll.appendChild(cal); view.appendChild(scroll);
 
   const backlog=tasks.filter(t=>t.status!=='done'&&!t.fixed&&(!t.blocks||t.blocks.length===0));
-  if(backlog.length){
-    const lab=document.createElement('div'); lab.className='section-label'; lab.textContent='Chưa xếp được · '+backlog.length; view.appendChild(lab);
-    backlog.sort((a,b)=>score(b)-score(a)).forEach(t=>view.appendChild(backlogRow(t)));
-  }
+  if(backlog.length){ const lab=document.createElement('div'); lab.className='section-label'; lab.textContent='Chưa xếp được · '+backlog.length; view.appendChild(lab);
+    backlog.sort((a,b)=>score(b)-score(a)).forEach(t=>view.appendChild(backlogRow(t))); }
 }
 function emptyState(icon,text){ const d=document.createElement('div'); d.className='empty'; d.innerHTML='<div class="ei">'+svg(icon,26)+'</div><p>'+text+'</p>'; return d; }
 
-/* =========================================================================
-   TAB VIỆC
-   ========================================================================= */
+/* ---------- Tab Việc ---------- */
 function taskRow(t){
   const row=document.createElement('div'); row.className='trow';
   const top=document.createElement('div'); top.className='top';
   const chk=document.createElement('div'); chk.className='check'+(t.status==='done'?' on':''); chk.innerHTML=t.status==='done'?svg('check',14):'';
   chk.onclick=()=>{ t.status=t.status==='done'?'chua':'done'; t.doneAt=t.status==='done'?new Date().toISOString():null; save(); render(); };
   const ti=document.createElement('input'); ti.className='title'; ti.value=t.title; ti.onchange=()=>{ t.title=ti.value.trim()||t.title; save(); };
-  const del=document.createElement('button'); del.className='mini'; del.innerHTML=svg('trash',17);
-  del.onclick=()=>{ if(confirm('Xoá việc này?')){ tasks=tasks.filter(x=>x.id!==t.id); save(); render(); } };
+  const del=document.createElement('button'); del.className='mini-b'; del.innerHTML=svg('trash',17); del.onclick=()=>{ if(confirm('Xoá việc này?')){ tasks=tasks.filter(x=>x.id!==t.id); save(); render(); } };
   top.appendChild(chk); top.appendChild(ti); top.appendChild(del); row.appendChild(top);
-
   const c=document.createElement('div'); c.className='ctrls';
   const pr=document.createElement('select'); pr.className='sel'; ['P1','P2','P3','P4'].forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=PR_LABEL[p]; if(t.priority===p)o.selected=true; pr.appendChild(o); }); pr.onchange=()=>{ t.priority=pr.value; save(); };
   const du=document.createElement('select'); du.className='sel'; const durs=[15,30,45,60,90,120,180,240]; durs.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=(m<60?m+' phút':(m/60)+' giờ'); if(t.durationMin===m)o.selected=true; du.appendChild(o); }); if(!durs.includes(t.durationMin)){ const o=document.createElement('option'); o.value=t.durationMin; o.textContent=t.durationMin+' phút'; o.selected=true; du.appendChild(o);} du.onchange=()=>{ t.durationMin=+du.value; save(); };
   const ca=document.createElement('select'); ca.className='sel'; CATS.forEach(x=>{ const o=document.createElement('option'); o.value=x; o.textContent=x; if(t.category===x)o.selected=true; ca.appendChild(o); }); ca.onchange=()=>{ t.category=ca.value; save(); };
   c.appendChild(labeled('Ưu tiên',pr)); c.appendChild(labeled('Thời lượng',du)); c.appendChild(labeled('Nhóm',ca));
-
   const fixLbl=document.createElement('label'); fixLbl.className='lbl'; const fixCb=document.createElement('input'); fixCb.type='checkbox'; fixCb.checked=t.fixed; fixLbl.appendChild(fixCb); fixLbl.appendChild(document.createTextNode('Cố định giờ')); c.appendChild(fixLbl);
   const dueWrap=labeled('Hạn', mkDate(t.due,(v)=>{ t.due=v||null; save(); }));
-  const fx=document.createElement('span'); fx.className='fixed-time'+(t.fixed?' show':'');
-  const fdate=mkDate(t.fixedStart?t.fixedStart.slice(0,10):'',(v)=>updFixed(t,v,null));
-  const ftime=document.createElement('input'); ftime.type='time'; ftime.className='inp'; ftime.value=t.fixedStart?t.fixedStart.slice(11,16):'09:00'; ftime.onchange=()=>updFixed(t,null,ftime.value);
-  fx.appendChild(fdate); fx.appendChild(ftime);
+  const fx=document.createElement('span'); fx.className='fixed-time'+(t.fixed?' show':''); const fdate=mkDate(t.fixedStart?t.fixedStart.slice(0,10):'',(v)=>updFixed(t,v,null)); const ftime=document.createElement('input'); ftime.type='time'; ftime.className='inp'; ftime.value=t.fixedStart?t.fixedStart.slice(11,16):'09:00'; ftime.onchange=()=>updFixed(t,null,ftime.value); fx.appendChild(fdate); fx.appendChild(ftime);
   c.appendChild(dueWrap); c.appendChild(fx); dueWrap.style.display=t.fixed?'none':'';
   fixCb.onchange=()=>{ t.fixed=fixCb.checked; if(t.fixed){ const d=(t.fixedStart&&t.fixedStart.slice(0,10))||t.due||ymd(today()); const tm=(t.fixedStart&&t.fixedStart.slice(11,16))||'09:00'; t.fixedStart=d+'T'+tm; t.due=null; } else t.fixedStart=null; save(); render(); };
   row.appendChild(c); return row;
@@ -672,27 +569,23 @@ function labeled(txt,el){ const w=document.createElement('span'); w.className='l
 function mkDate(val,cb){ const i=document.createElement('input'); i.type='date'; i.className='inp'; i.value=val||''; i.onchange=()=>cb(i.value); return i; }
 function updFixed(t,dateV,timeV){ const cur=t.fixedStart||ymd(today())+'T09:00'; const d=dateV!=null?(dateV||ymd(today())):cur.slice(0,10); const tm=timeV!=null?(timeV||'09:00'):cur.slice(11,16); t.fixedStart=d+'T'+tm; save(); }
 function renderTasks(view){
+  const head=document.createElement('div'); head.className='vhead'; head.innerHTML='<div><h2>Công việc</h2></div>'; view.appendChild(head);
   const bar=document.createElement('div'); bar.className='filters';
   [['chua','Chưa xong'],['done','Đã xong'],['all','Tất cả']].forEach(([k,l])=>{ const c=document.createElement('button'); c.className='chip'+(taskFilter===k?' active':''); c.textContent=l; c.onclick=()=>{ taskFilter=k; render(); }; bar.appendChild(c); });
   view.appendChild(bar);
-  let list=tasks.slice();
-  if(taskFilter==='chua') list=list.filter(t=>t.status!=='done');
-  if(taskFilter==='done') list=list.filter(t=>t.status==='done');
-  list.sort((a,b)=>score(b)-score(a));
+  let list=tasks.slice(); if(taskFilter==='chua') list=list.filter(t=>t.status!=='done'); if(taskFilter==='done') list=list.filter(t=>t.status==='done'); list.sort((a,b)=>score(b)-score(a));
   if(!list.length){ view.appendChild(emptyState('tasks','Không có việc nào ở mục này.')); return; }
   list.forEach(t=>view.appendChild(taskRow(t)));
 }
 
-/* =========================================================================
-   TAB THÓI QUEN
-   ========================================================================= */
+/* ---------- Tab Thói quen ---------- */
 const DAYS_ORDER=[[1,'T2'],[2,'T3'],[3,'T4'],[4,'T5'],[5,'T6'],[6,'T7'],[0,'CN']];
 function habitRow(h){
   const row=document.createElement('div'); row.className='trow';
   const top=document.createElement('div'); top.className='top';
   const sw=document.createElement('button'); sw.className='switch'+(h.active!==false?' on':''); sw.title='Bật / tắt'; sw.onclick=()=>{ h.active=!(h.active!==false); scheduleAndRender(); };
   const ti=document.createElement('input'); ti.className='title'; ti.value=h.title; ti.onchange=()=>{ h.title=ti.value.trim()||h.title; save(); };
-  const del=document.createElement('button'); del.className='mini'; del.innerHTML=svg('trash',17); del.onclick=()=>{ if(confirm('Xoá thói quen này?')){ habits=habits.filter(x=>x.id!==h.id); scheduleAndRender(); } };
+  const del=document.createElement('button'); del.className='mini-b'; del.innerHTML=svg('trash',17); del.onclick=()=>{ if(confirm('Xoá thói quen này?')){ habits=habits.filter(x=>x.id!==h.id); scheduleAndRender(); } };
   top.appendChild(sw); top.appendChild(ti); top.appendChild(del); row.appendChild(top);
   const c=document.createElement('div'); c.className='ctrls';
   const dayWrap=document.createElement('span'); dayWrap.className='lbl'; dayWrap.style.gap='4px'; dayWrap.style.flexWrap='wrap';
@@ -704,54 +597,42 @@ function habitRow(h){
   row.appendChild(c); return row;
 }
 function renderHabits(view){
-  const add=document.createElement('button'); add.className='btn btn-primary'; add.style.marginBottom='14px'; add.innerHTML=svg('plus')+'<span>Thêm thói quen</span>';
-  add.onclick=()=>{ habits.unshift({id:uid(),title:'Thói quen mới',category:'Cá nhân',priority:'P3',durationMin:30,days:[1,2,3,4,5],time:'',active:true,doneDates:[]}); scheduleAndRender(); };
-  view.appendChild(add);
+  const head=document.createElement('div'); head.className='vhead'; head.innerHTML='<div><h2>Thói quen</h2></div>';
+  const acts=document.createElement('div'); acts.className='acts'; const add=document.createElement('button'); add.className='btn btn-primary'; add.innerHTML=svg('plus')+'<span>Thêm thói quen</span>'; add.onclick=()=>{ habits.unshift({id:uid(),title:'Thói quen mới',category:'Cá nhân',priority:'P3',durationMin:30,days:[1,2,3,4,5],time:'',active:true,doneDates:[]}); scheduleAndRender(); }; acts.appendChild(add); head.appendChild(acts); view.appendChild(head);
   if(!habits.length){ view.appendChild(emptyState('repeat','Chưa có thói quen nào. Ví dụ: đọc email 30 phút mỗi sáng, xem báo cáo chiều thứ Sáu.')); return; }
   habits.forEach(h=>view.appendChild(habitRow(h)));
 }
 
-/* ---------- Xuất .ics ---------- */
 function exportICS(){
-  const evs=[];
-  tasks.forEach(t=>(t.blocks||[]).forEach(b=>evs.push({start:b.start,min:b.min,title:t.title,cat:t.category})));
-  habitBlocks.forEach(hb=>evs.push({start:hb.start,min:hb.min,title:hb.habit.title,cat:hb.habit.category}));
+  const evs=[]; tasks.forEach(t=>(t.blocks||[]).forEach(b=>evs.push({start:b.start,min:b.min,title:t.title,cat:t.category}))); habitBlocks.forEach(hb=>evs.push({start:hb.start,min:hb.min,title:hb.habit.title,cat:hb.habit.category}));
   if(!evs.length){ toast('Chưa có lịch để xuất — bấm Lên lịch trước'); return; }
   const esc=s=>String(s).replace(/[\\,;]/g,'\\$&').replace(/\n/g,'\\n');
   const dt=iso=>{ const d=new Date(iso); return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00'; };
   let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//TroLyViec//VN//\r\nCALSCALE:GREGORIAN\r\n';
-  evs.forEach((e,i)=>{ const s=dt(e.start), en=dt(new Date(Date.parse(e.start)+e.min*60000).toISOString());
-    ics+='BEGIN:VEVENT\r\nUID:tlv-'+i+'-'+Date.now()+'@trolyviec\r\nDTSTAMP:'+dt(new Date().toISOString())+'\r\nDTSTART:'+s+'\r\nDTEND:'+en+'\r\nSUMMARY:'+esc(e.title)+'\r\nDESCRIPTION:'+esc('Nhóm: '+e.cat)+'\r\nEND:VEVENT\r\n'; });
+  evs.forEach((e,i)=>{ const s=dt(e.start), en=dt(new Date(Date.parse(e.start)+e.min*60000).toISOString()); ics+='BEGIN:VEVENT\r\nUID:tlv-'+i+'-'+Date.now()+'@trolyviec\r\nDTSTAMP:'+dt(new Date().toISOString())+'\r\nDTSTART:'+s+'\r\nDTEND:'+en+'\r\nSUMMARY:'+esc(e.title)+'\r\nDESCRIPTION:'+esc('Nhóm: '+e.cat)+'\r\nEND:VEVENT\r\n'; });
   ics+='END:VCALENDAR\r\n';
-  const blob=new Blob([ics],{type:'text/calendar'}), url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='troly-viec-lich.ics'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  const blob=new Blob([ics],{type:'text/calendar'}), url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='troly-viec-lich.ics'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   toast('Đã tải file .ics — vào Google Calendar, Cài đặt, Nhập & xuất, chọn file này');
 }
 function scheduleAndRender(){ save(); runScheduler(); render(); }
 
-/* =========================================================================
-   TAB BÁO CÁO
-   ========================================================================= */
+/* ---------- Tab Báo cáo ---------- */
 function weekRange(){ const t=today(); return {start:ymd(addDays(t,-6)),end:ymd(t)}; }
 function reportData(){
   const {start,end}=weekRange(); const inWeek=iso=>iso&&iso.slice(0,10)>=start&&iso.slice(0,10)<=end;
   let planMin=0, doneMin=0; const byCat={};
   tasks.forEach(t=>{ (t.blocks||[]).forEach(b=>{ if(inWeek(b.start)){ planMin+=b.min; byCat[t.category]=(byCat[t.category]||0)+b.min; } }); if(t.status==='done'&&inWeek(t.doneAt)) doneMin+=t.durationMin; });
   const late=tasks.filter(t=>t.status!=='done'&&t.due&&t.due<ymd(today())).length;
-  const doneList=tasks.filter(t=>t.status==='done'&&inWeek(t.doneAt));
-  const todoList=tasks.filter(t=>t.status!=='done');
+  const doneList=tasks.filter(t=>t.status==='done'&&inWeek(t.doneAt)); const todoList=tasks.filter(t=>t.status!=='done');
   return {planMin,doneMin,late,byCat,doneList,todoList};
 }
 function hoursTxt(min){ const h=Math.floor(min/60),m=min%60; return ((h?h+'h':'')+(m?m+'′':''))||'0'; }
 function ruleReport(d){
-  const t=today();
-  let md=`## Báo cáo tuần (đến ${fmtDate(ymd(t))})\n`;
-  md+=`Tuần này bạn đã sắp lịch **${hoursTxt(d.planMin)}** công việc, hoàn thành **${hoursTxt(d.doneMin)}**`;
-  md+=d.late?`, còn **${d.late}** việc quá hạn cần xử lý.\n`:`.\n`;
+  const t=today(); let md=`## Báo cáo tuần (đến ${fmtDate(ymd(t))})\n`;
+  md+=`Tuần này bạn đã sắp lịch **${hoursTxt(d.planMin)}** công việc, hoàn thành **${hoursTxt(d.doneMin)}**`; md+=d.late?`, còn **${d.late}** việc quá hạn cần xử lý.\n`:`.\n`;
   md+=`\n## Đã làm\n`+(d.doneList.length?d.doneList.map(x=>`- ${x.title}`).join('\n')+'\n':'- (chưa đánh dấu việc nào xong)\n');
   md+=`\n## Cần chú ý\n`+(d.todoList.length?d.todoList.slice(0,12).map(x=>`- ${x.title}${x.due?` (hạn ${fmtDate(x.due)})`:''}`).join('\n')+'\n':'- (không còn việc tồn)\n');
-  md+=`\n## Thời gian theo nhóm\n`+Object.entries(d.byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`- ${k}: ${hoursTxt(v)}`).join('\n')+'\n';
-  return md;
+  md+=`\n## Thời gian theo nhóm\n`+Object.entries(d.byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`- ${k}: ${hoursTxt(v)}`).join('\n')+'\n'; return md;
 }
 async function aiReport(d){
   const sys=`Bạn là trợ lý cho người làm kinh doanh ở Việt Nam. Viết báo cáo tuần NGẮN GỌN, ấm áp, chuyên nghiệp bằng tiếng Việt dựa trên dữ liệu JSON. Gồm: (1) một câu tổng kết; (2) mục "Đã làm"; (3) mục "Cần chú ý"; (4) 2-3 gợi ý cụ thể cho tuần tới. Dùng markdown đơn giản (## tiêu đề, - gạch đầu dòng, **nhấn mạnh**). KHÔNG dùng emoji, không chào máy móc.`;
@@ -759,16 +640,15 @@ async function aiReport(d){
   return await callClaude(sys,payload,1500,null);
 }
 function mdToHtml(md){
-  const lines=md.split('\n'); let html='',inList=false;
-  const inl=s=>escapeHtml(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+  const lines=md.split('\n'); let html='',inList=false; const inl=s=>escapeHtml(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
   for(let line of lines){ line=line.trim();
     if(/^##\s+/.test(line)){ if(inList){html+='</ul>';inList=false;} html+='<h2>'+inl(line.replace(/^##\s+/,''))+'</h2>'; }
     else if(/^-\s+/.test(line)){ if(!inList){html+='<ul>';inList=true;} html+='<li>'+inl(line.replace(/^-\s+/,''))+'</li>'; }
     else if(line===''){ if(inList){html+='</ul>';inList=false;} }
-    else { if(inList){html+='</ul>';inList=false;} html+='<p>'+inl(line)+'</p>'; }
-  } if(inList)html+='</ul>'; return html;
+    else { if(inList){html+='</ul>';inList=false;} html+='<p>'+inl(line)+'</p>'; } } if(inList)html+='</ul>'; return html;
 }
 function renderReport(view){
+  const head=document.createElement('div'); head.className='vhead'; head.innerHTML='<div><h2>Báo cáo tuần</h2><span class="sub">7 ngày gần đây</span></div>'; view.appendChild(head);
   const d=reportData();
   const stats=document.createElement('div'); stats.className='stats';
   [['plan','Đã sắp lịch',hoursTxt(d.planMin)],['done','Hoàn thành',hoursTxt(d.doneMin)],['late','Quá hạn',d.late],['','Việc tồn',d.todoList.length]].forEach(([cls,l,n])=>{ const s=document.createElement('div'); s.className='stat '+cls; s.innerHTML='<div class="n">'+n+'</div><div class="l">'+l+'</div>'; stats.appendChild(s); });
@@ -782,19 +662,29 @@ function renderReport(view){
 }
 function renderCard(view){ let card=view.querySelector('.report-card'); if(!card){ card=document.createElement('div'); card.className='report-card'; view.appendChild(card); } card.innerHTML=lastReport?mdToHtml(lastReport):'<p style="color:var(--muted);margin:0">Bấm nút phía trên để tạo tổng kết việc đã và chưa làm trong tuần.</p>'; }
 
-/* ---------- Render tổng ---------- */
+/* ---------- Render + điều hướng ---------- */
 function render(){
   const view=document.getElementById('view'); view.innerHTML='';
-  if(currentTab==='plan') renderPlan(view);
-  else if(currentTab==='tasks') renderTasks(view);
-  else if(currentTab==='habits') renderHabits(view);
-  else renderReport(view);
+  if(currentTab==='plan') renderPlan(view); else if(currentTab==='tasks') renderTasks(view); else if(currentTab==='habits') renderHabits(view); else renderReport(view);
   const chua=tasks.filter(t=>t.status!=='done').length;
-  document.getElementById('subtitle').textContent=chua?(chua+' việc đang chờ'):'Trợ lý sắp lịch thông minh';
-  const mb=document.getElementById('modeBadge'); mb.classList.toggle('on',!!settings.apiKey);
-  document.getElementById('modeText').textContent=settings.apiKey?'AI đang bật':'Chế độ cơ bản';
+  document.getElementById('brandDate').textContent=weekdayVN(today())+', '+fmtDate(ymd(today()))+(chua?(' · '+chua+' việc chờ'):'');
+  const mb=document.getElementById('modeBadge'); mb.classList.toggle('on',!!settings.apiKey); document.getElementById('modeText').textContent=settings.apiKey?'AI đang bật':'Chế độ cơ bản';
 }
-function setActiveTab(){ document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===currentTab)); }
+const TABS=[['plan','Lịch','cal'],['tasks','Việc','tasks'],['habits','Thói quen','repeat'],['report','Báo cáo','chart']];
+function setActiveNav(){ document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===currentTab)); }
+function goTab(k){ currentTab=k; setActiveNav(); render(); }
+
+/* ---------- Lịch tháng nhỏ ---------- */
+function buildMini(){
+  const el=document.getElementById('mini'); const t=today(); const y=t.getFullYear(), mo=t.getMonth();
+  const startDow=(new Date(y,mo,1).getDay()+6)%7; const dim=new Date(y,mo+1,0).getDate(); const prevDim=new Date(y,mo,0).getDate();
+  let html='<div class="mh">Tháng '+(mo+1)+', '+y+'</div><div class="mgrid">';
+  ['T2','T3','T4','T5','T6','T7','CN'].forEach(w=>html+='<span class="w">'+w+'</span>');
+  for(let i=0;i<startDow;i++) html+='<span class="d mut">'+(prevDim-startDow+1+i)+'</span>';
+  for(let d=1;d<=dim;d++) html+='<span class="'+(d===t.getDate()?'d now':'d')+'">'+d+'</span>';
+  const rem=(7-((startDow+dim)%7))%7; for(let i=1;i<=rem;i++) html+='<span class="d mut">'+i+'</span>';
+  html+='</div>'; el.innerHTML=html;
+}
 
 /* ---------- Giọng nói ---------- */
 let recog=null,recording=false;
@@ -803,49 +693,52 @@ function setupMic(){
   if(!SR){ btn.style.display='none'; return; }
   recog=new SR(); recog.lang='vi-VN'; recog.interimResults=true; recog.continuous=false; let base='';
   recog.onstart=()=>{ recording=true; btn.classList.add('recording'); btn.innerHTML=svg('mic')+'<span>Dừng</span>'; base=document.getElementById('input').value; };
-  recog.onresult=e=>{ let txt=''; for(let i=0;i<e.results.length;i++) txt+=e.results[i][0].transcript; document.getElementById('input').value=(base?base+' ':'')+txt; };
+  recog.onresult=e=>{ let txt=''; for(let i=0;i<e.results.length;i++) txt+=e.results[i][0].transcript; document.getElementById('input').value=(base?base+' ':'')+txt; autoGrow(); };
   recog.onerror=e=>{ recording=false; btn.classList.remove('recording'); btn.innerHTML=svg('mic')+'<span>Nói</span>'; toast(e.error==='not-allowed'?'Trình duyệt chặn micro — hãy cho phép, hoặc gõ tay.':'Không nghe được — thử lại hoặc gõ tay.'); };
   recog.onend=()=>{ recording=false; btn.classList.remove('recording'); btn.innerHTML=svg('mic')+'<span>Nói</span>'; };
   btn.onclick=()=>{ if(recording)recog.stop(); else{ try{recog.start();}catch(e){toast('Thử lại sau một giây.');} } };
 }
+function autoGrow(){ const el=document.getElementById('input'); el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,140)+'px'; }
 
-/* ---------- Dựng giao diện (icon, tabs, sự kiện) ---------- */
+/* ---------- Dựng giao diện ---------- */
 function setupUI(){
   document.getElementById('logo').innerHTML=svg('calCheck',21);
-  document.getElementById('btnSettings').innerHTML=svg('settings',20);
+  document.getElementById('sideSet').innerHTML=svg('settings',18)+'<span>Cài đặt</span>';
+  document.getElementById('newBtn').innerHTML=svg('plus',18)+'<span>Ghi việc mới</span>';
   document.getElementById('btnAdd').innerHTML=svg('plus')+'<span>Thêm việc</span>';
   document.getElementById('btnMic').innerHTML=svg('mic')+'<span>Nói</span>';
 
-  const TABS=[['plan','Lịch','cal'],['tasks','Việc','tasks'],['habits','Thói quen','repeat'],['report','Báo cáo','chart']];
-  const tabsEl=document.getElementById('tabs');
-  TABS.forEach(([k,l,ic])=>{ const b=document.createElement('button'); b.className='tab'+(k==='plan'?' active':''); b.dataset.tab=k; b.innerHTML=svg(ic,17)+'<span>'+l+'</span>'; b.onclick=()=>{ currentTab=k; setActiveTab(); render(); }; tabsEl.appendChild(b); });
+  const nav=document.getElementById('nav'); const bnav=document.getElementById('bottomnav');
+  TABS.forEach(([k,l,ic])=>{
+    const a=document.createElement('a'); a.dataset.tab=k; a.className=(k==='plan'?'on':''); a.innerHTML=svg(ic,18)+'<span>'+l+'</span>'; a.onclick=()=>goTab(k); nav.appendChild(a);
+    const b=document.createElement('a'); b.dataset.tab=k; b.className=(k==='plan'?'on':''); b.innerHTML=svg(ic,21)+'<span>'+l+'</span>'; b.onclick=()=>goTab(k); bnav.appendChild(b);
+  });
 
+  // Topbar (mobile)
+  const tb=document.getElementById('topbar');
+  tb.innerHTML='<div class="logo" style="width:32px;height:32px;border-radius:9px">'+svg('calCheck',18)+'</div><div style="flex:1"><div style="font-weight:700;font-size:15px;line-height:1.1">Trợ Lý Việc</div></div>';
+  const gear=document.createElement('button'); gear.className='btn btn-secondary'; gear.style.padding='8px'; gear.innerHTML=svg('settings',18); gear.onclick=openSettings; tb.appendChild(gear);
+
+  document.getElementById('newBtn').onclick=()=>{ document.getElementById('input').focus(); if(window.scrollTo) window.scrollTo({top:0,behavior:'smooth'}); };
   document.getElementById('btnAdd').onclick=handleAdd;
-  document.getElementById('btnClear').onclick=()=>document.getElementById('input').value='';
-  document.getElementById('input').addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter') handleAdd(); });
+  document.getElementById('btnClear').onclick=()=>{ document.getElementById('input').value=''; autoGrow(); };
+  const inp=document.getElementById('input'); inp.addEventListener('input',autoGrow); inp.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter') handleAdd(); });
 
-  const overlay=document.getElementById('overlay');
-  document.getElementById('btnSettings').onclick=()=>{ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>document.getElementById(id).value=settings[id]); document.getElementById('apiKey').value=settings.apiKey; document.getElementById('lunchOn').checked=settings.lunchOn; document.getElementById('workSat').checked=settings.workSat; document.getElementById('workSun').checked=settings.workSun; overlay.classList.add('open'); };
-  document.getElementById('btnCloseSettings').onclick=()=>overlay.classList.remove('open');
-  overlay.onclick=e=>{ if(e.target===overlay) overlay.classList.remove('open'); };
+  document.getElementById('sideSet').onclick=openSettings;
+  document.getElementById('btnCloseSettings').onclick=()=>document.getElementById('overlay').classList.remove('open');
+  const overlay=document.getElementById('overlay'); overlay.onclick=e=>{ if(e.target===overlay) overlay.classList.remove('open'); };
   document.getElementById('btnSaveSettings').onclick=()=>{ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>settings[id]=document.getElementById(id).value); settings.apiKey=document.getElementById('apiKey').value.trim(); settings.lunchOn=document.getElementById('lunchOn').checked; settings.workSat=document.getElementById('workSat').checked; settings.workSun=document.getElementById('workSun').checked; save(); overlay.classList.remove('open'); runScheduler(); render(); toast('Đã lưu & sắp lại lịch'); };
 }
+function openSettings(){ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>document.getElementById(id).value=settings[id]); document.getElementById('apiKey').value=settings.apiKey; document.getElementById('lunchOn').checked=settings.lunchOn; document.getElementById('workSat').checked=settings.workSat; document.getElementById('workSun').checked=settings.workSun; document.getElementById('overlay').classList.add('open'); }
 
-/* ---------- Biểu tượng màn hình chính điện thoại ---------- */
 function injectIcon(){
-  try{
-    const cv=document.createElement('canvas'); cv.width=cv.height=180; const x=cv.getContext('2d');
-    const g=x.createLinearGradient(0,0,180,180); g.addColorStop(0,'#5b5bd6'); g.addColorStop(1,'#4646b8');
-    x.fillStyle=g; if(x.roundRect){ x.beginPath(); x.roundRect(0,0,180,180,42); x.fill(); } else x.fillRect(0,0,180,180);
-    x.strokeStyle='#fff'; x.lineWidth=11; x.lineCap='round'; x.lineJoin='round';
-    x.strokeRect(52,58,76,72);
-    x.beginPath(); x.moveTo(52,84); x.lineTo(128,84); x.stroke();
-    x.beginPath(); x.moveTo(72,112); x.lineTo(86,126); x.lineTo(112,100); x.stroke();
-    const url=cv.toDataURL('image/png');
-    ['apple-touch-icon','icon'].forEach(rel=>{ const l=document.createElement('link'); l.rel=rel; l.href=url; document.head.appendChild(l); });
+  try{ const cv=document.createElement('canvas'); cv.width=cv.height=180; const x=cv.getContext('2d');
+    const g=x.createLinearGradient(0,0,180,180); g.addColorStop(0,'#5b5bd6'); g.addColorStop(1,'#4341c9'); x.fillStyle=g; if(x.roundRect){ x.beginPath(); x.roundRect(0,0,180,180,42); x.fill(); } else x.fillRect(0,0,180,180);
+    x.strokeStyle='#fff'; x.lineWidth=11; x.lineCap='round'; x.lineJoin='round'; x.strokeRect(52,58,76,72); x.beginPath(); x.moveTo(52,84); x.lineTo(128,84); x.stroke(); x.beginPath(); x.moveTo(72,112); x.lineTo(86,126); x.lineTo(112,100); x.stroke();
+    const url=cv.toDataURL('image/png'); ['apple-touch-icon','icon'].forEach(rel=>{ const l=document.createElement('link'); l.rel=rel; l.href=url; document.head.appendChild(l); });
   }catch(e){}
 }
 
 /* ---------- Khởi động ---------- */
-migrate(); runScheduler(); setupUI(); setupMic(); injectIcon(); render();
+migrate(); runScheduler(); setupUI(); buildMini(); setupMic(); injectIcon(); render();
 </script>
