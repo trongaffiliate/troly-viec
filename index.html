@@ -8,31 +8,33 @@
 <meta name="apple-mobile-web-app-title" content="Trợ Lý Việc" />
 <style>
   :root{
-    --bg:#f4f6f5; --surface:#ffffff; --surface-2:#eef2f0;
-    --text:#14201c; --muted:#5d6b66; --border:#dde5e1;
-    --accent:#0f766e; --accent-soft:#d7ece9;
-    --p1:#b91c1c; --p1-soft:#f7dcdc;
-    --p2:#b45309; --p2-soft:#fbe6cf;
-    --p3:#0f766e; --p3-soft:#d7ece9;
-    --p4:#5d6b66; --p4-soft:#e7ecea;
-    --done:#15803d; --done-soft:#dcf3e3;
-    --fixed:#4338ca; --fixed-soft:#e0e0fb;
-    --shadow:0 1px 2px rgba(20,32,28,.06), 0 8px 24px rgba(20,32,28,.06);
+    --bg:#f5f6fb; --surface:#ffffff; --surface-2:#eef1fa;
+    --text:#1b2334; --muted:#6b7385; --border:#e4e7f1;
+    --accent:#4c6ef5; --accent-soft:#e6ecff;
+    --p1:#e03131; --p1-soft:#ffe6e6;
+    --p2:#e8830c; --p2-soft:#ffeed8;
+    --p3:#4c6ef5; --p3-soft:#e6ecff;
+    --p4:#7a8496; --p4-soft:#eceff4;
+    --done:#2f9e44; --done-soft:#e4f6e8;
+    --fixed:#5b4bd6; --fixed-soft:#ebe8fc;
+    --habit:#0ca678; --habit-soft:#dcf6ee;
+    --shadow:0 1px 2px rgba(30,40,80,.05), 0 8px 24px rgba(30,40,80,.07);
     --radius:14px;
     --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji",sans-serif;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#0e1512; --surface:#16201c; --surface-2:#1c2823;
-      --text:#e8efeb; --muted:#9db0a8; --border:#293530;
-      --accent:#2dd4bf; --accent-soft:#123330;
-      --p1:#f87171; --p1-soft:#3a1616;
-      --p2:#f5b45c; --p2-soft:#3a2a12;
-      --p3:#2dd4bf; --p3-soft:#123330;
-      --p4:#9db0a8; --p4-soft:#232e2a;
-      --done:#4ade80; --done-soft:#12301d;
-      --fixed:#a5b4fc; --fixed-soft:#1e1e40;
-      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --bg:#0d1017; --surface:#161a24; --surface-2:#1e2434;
+      --text:#e7ebf5; --muted:#98a1b5; --border:#2a3145;
+      --accent:#7c93ff; --accent-soft:#1c2540;
+      --p1:#ff8787; --p1-soft:#3a1c1c;
+      --p2:#ffbf69; --p2-soft:#3a2a14;
+      --p3:#7c93ff; --p3-soft:#1c2540;
+      --p4:#98a1b5; --p4-soft:#252b3b;
+      --done:#5bd97a; --done-soft:#153020;
+      --fixed:#a5b0ff; --fixed-soft:#20233f;
+      --habit:#34d3a6; --habit-soft:#12312a;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.45);
     }
   }
   *{box-sizing:border-box}
@@ -145,6 +147,36 @@
 
   #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:11px;font-size:14px;font-weight:600;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw;text-align:center}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ===== Lịch dạng lưới tuần (kiểu Reclaim) ===== */
+  .cal-tools{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+  .cal-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow)}
+  .cal{min-width:760px}
+  .cal-head,.cal-body{display:grid;grid-template-columns:52px repeat(7,minmax(104px,1fr))}
+  .cal-head{border-bottom:1px solid var(--border)}
+  .cal-head .dh{padding:9px 4px 8px;text-align:center;border-left:1px solid var(--border)}
+  .cal-head .dh .wd{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.4px}
+  .cal-head .dh .dn{font-size:16px;font-weight:700;margin-top:3px}
+  .cal-head .dh.today .dn{color:#fff;background:var(--accent);width:28px;height:28px;line-height:28px;border-radius:50%;display:inline-block;margin-top:3px}
+  .cal-gutter{position:relative}
+  .cal-gutter .hr{position:absolute;right:6px;font-size:11px;color:var(--muted);transform:translateY(-7px);font-variant-numeric:tabular-nums}
+  .cal-col{position:relative;border-left:1px solid var(--border);background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hh) - 1px),var(--border) calc(var(--hh) - 1px),var(--border) var(--hh))}
+  .nowline{position:absolute;left:0;right:0;height:2px;background:#e8590c;z-index:4}
+  .nowline::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:#e8590c}
+  .ev{position:absolute;border-radius:8px;padding:3px 6px;overflow:hidden;box-shadow:0 1px 2px rgba(30,40,80,.08);z-index:1;min-height:20px}
+  .ev .et{font-size:10px;font-weight:700;opacity:.8;line-height:1.15}
+  .ev .en{font-size:11.5px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:14px}
+  .ev.done{opacity:.55}
+  .ev.done .en{text-decoration:line-through}
+  .ev-fixed{background:var(--fixed-soft);color:var(--fixed)}
+  .ev-habit{background:var(--habit-soft);color:var(--habit)}
+  .ev-P1{background:var(--p1-soft);color:var(--p1)}
+  .ev-P2{background:var(--p2-soft);color:var(--p2)}
+  .ev-P3{background:var(--p3-soft);color:var(--p3)}
+  .ev-P4{background:var(--p4-soft);color:var(--p4)}
+  .ev .dot{position:absolute;top:3px;right:4px;width:15px;height:15px;border-radius:5px;border:1.5px solid currentColor;cursor:pointer;display:grid;place-items:center;font-size:10px;background:transparent;opacity:.7}
+  .ev .dot.on{background:var(--done);border-color:var(--done);color:#fff;opacity:1}
+  @media (max-width:560px){.cal-head,.cal-body{grid-template-columns:44px repeat(7,minmax(92px,1fr))}}
 </style>
 
 <div class="wrap">
@@ -534,42 +566,94 @@ function blockEl(t,b){
   wrap.appendChild(inn); return wrap;
 }
 
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function evEl(e,sH,hh){
+  const isTask=e.kind==='task';
+  const done = isTask ? e.t.status==='done' : (e.h.doneDates||[]).includes(e.start.slice(0,10));
+  const cls = e.kind==='habit' ? 'ev-habit' : (e.t.fixed ? 'ev-fixed' : 'ev-'+e.t.priority);
+  const ev=document.createElement('div'); ev.className='ev '+cls+(done?' done':'');
+  const d0=new Date(e.start); const startMin=d0.getHours()*60+d0.getMinutes();
+  ev.style.top=((startMin-sH*60)/60*hh)+'px';
+  ev.style.height=Math.max(e.min/60*hh,22)+'px';
+  ev.style.left='calc('+(e._lane*(100/e._lc))+'% + 2px)';
+  ev.style.width='calc('+(100/e._lc)+'% - 4px)';
+  const icon = e.kind==='habit'?'🔁 ':(isTask&&e.t.fixed?'📌 ':'');
+  const title = isTask ? e.t.title : e.h.title;
+  ev.innerHTML='<div class="et">'+hhmm(e.start)+'</div><div class="en">'+icon+escapeHtml(title)+'</div>';
+  const dot=document.createElement('div'); dot.className='dot'+(done?' on':''); dot.textContent=done?'✓':''; dot.title='Đánh dấu đã xong';
+  dot.onclick=(ev2)=>{ ev2.stopPropagation();
+    if(isTask){ e.t.status=done?'chua':'done'; e.t.doneAt=e.t.status==='done'?new Date().toISOString():null; }
+    else { const dd=e.start.slice(0,10); e.h.doneDates=e.h.doneDates||[]; if(done) e.h.doneDates=e.h.doneDates.filter(x=>x!==dd); else e.h.doneDates.push(dd); }
+    save(); render();
+  };
+  ev.appendChild(dot);
+  return ev;
+}
 function renderPlan(view){
-  const bar=document.createElement('div'); bar.className='plan-bar';
-  const txt=document.createElement('div'); txt.className='txt'; txt.textContent='AI xếp việc vào ô giờ trống. Bấm để xếp lại — việc chưa xong sẽ tự dời sang ô kế tiếp.';
+  const tools=document.createElement('div'); tools.className='cal-tools';
   const b=document.createElement('button'); b.className='btn btn-primary'; b.textContent='⚡ Lên lịch tự động';
-  b.onclick=()=>{ const un=runScheduler(); render(); toast(un?('Đã xếp lịch · '+un+' việc chưa có chỗ trong 2 tuần'):'Đã xếp lịch xong ✨'); };
-  const ics=document.createElement('button'); ics.className='btn btn-ghost'; ics.textContent='⬇️ Google (.ics)'; ics.title='Xuất file lịch để nạp vào Google Calendar'; ics.onclick=exportICS;
-  bar.appendChild(txt); bar.appendChild(b); bar.appendChild(ics); view.appendChild(bar);
+  b.onclick=()=>{ const un=runScheduler(); render(); toast(un?('Đã xếp lịch · '+un+' việc chưa có chỗ'):'Đã xếp lịch xong ✨'); };
+  const ics=document.createElement('button'); ics.className='btn btn-ghost'; ics.textContent='⬇️ Google (.ics)'; ics.title='Xuất file lịch nạp vào Google Calendar'; ics.onclick=exportICS;
+  tools.appendChild(b); tools.appendChild(ics); view.appendChild(tools);
 
-  if(tasks.length===0){ view.appendChild(Object.assign(document.createElement('div'),{className:'empty-state',innerHTML:'<div class="big">🌱</div><p>Chưa có việc nào.<br>Gõ hoặc bấm 🎤 để nói việc đầu tiên của anh.</p>'})); return; }
-
-  // gom khối theo ngày
-  const map={};
-  tasks.forEach(t=>(t.blocks||[]).forEach(bk=>{ const d=bk.start.slice(0,10); (map[d]=map[d]||[]).push({t,b:bk}); }));
-  habitBlocks.forEach(hb=>{ const d=hb.start.slice(0,10); (map[d]=map[d]||[]).push({habit:hb.habit,b:{start:hb.start,min:hb.min},isHabit:true}); });
-
-  for(let i=0;i<7;i++){
-    const day=addDays(today(),i), ds=ymd(day);
-    const items=(map[ds]||[]).sort((a,b)=>a.b.start.localeCompare(b.b.start));
-    let label=weekdayVN(day); if(i===0)label='Hôm nay'; else if(i===1)label='Ngày mai';
-    const g=document.createElement('div'); g.className='group';
-    const h=document.createElement('div'); h.className='group-head';
-    h.innerHTML='<span class="day">'+label+'</span><span class="date">'+fmtDate(ds)+'</span><span class="count">'+(items.length?items.length+' việc':'')+'</span>';
-    g.appendChild(h);
-    if(items.length) items.forEach(it=>g.appendChild(it.isHabit?habitBlockEl(it.habit,it.b):blockEl(it.t,it.b)));
-    else g.appendChild(Object.assign(document.createElement('div'),{className:'empty-day',textContent:'— trống —'}));
-    view.appendChild(g);
+  if(tasks.length===0 && habits.length===0){
+    view.appendChild(Object.assign(document.createElement('div'),{className:'empty-state',innerHTML:'<div class="big">🗓️</div><p>Lịch còn trống.<br>Gõ hoặc bấm 🎤 để thêm việc đầu tiên.</p>'}));
+    return;
   }
 
-  // việc chưa xếp được (hết chỗ) hoặc chưa lên lịch
+  // Gom khối vào 7 cột ngày
+  const idxOf={}; for(let i=0;i<7;i++) idxOf[ymd(addDays(today(),i))]=i;
+  const cols=[[],[],[],[],[],[],[]];
+  tasks.forEach(t=>(t.blocks||[]).forEach(bk=>{ const di=idxOf[bk.start.slice(0,10)]; if(di!=null) cols[di].push({kind:'task',t,start:bk.start,min:bk.min}); }));
+  habitBlocks.forEach(hb=>{ const di=idxOf[hb.start.slice(0,10)]; if(di!=null) cols[di].push({kind:'habit',h:hb.habit,start:hb.start,min:hb.min}); });
+
+  // Khoảng giờ hiển thị (giờ làm việc, mở rộng nếu có khối ngoài giờ)
+  let sH=parseInt(settings.workStart)||8, eH=parseInt(settings.workEnd)||18;
+  if((settings.workEnd||'').slice(3)!=='00' && eH<24) eH++;
+  cols.forEach(list=>list.forEach(e=>{ const s=new Date(e.start); sH=Math.min(sH,s.getHours()); eH=Math.max(eH,Math.ceil((s.getHours()*60+s.getMinutes()+e.min)/60)); }));
+  sH=Math.max(0,Math.min(sH,22)); eH=Math.min(24,Math.max(eH,sH+2));
+  const hh=52, totalH=(eH-sH)*hh;
+
+  const scroll=document.createElement('div'); scroll.className='cal-scroll';
+  const cal=document.createElement('div'); cal.className='cal'; cal.style.setProperty('--hh',hh+'px');
+
+  const head=document.createElement('div'); head.className='cal-head';
+  head.appendChild(Object.assign(document.createElement('div'),{className:'corner'}));
+  const WDS=['CN','T2','T3','T4','T5','T6','T7'];
+  for(let i=0;i<7;i++){ const day=addDays(today(),i);
+    const dh=document.createElement('div'); dh.className='dh'+(i===0?' today':'');
+    dh.innerHTML='<div class="wd">'+WDS[day.getDay()]+'</div><div class="dn">'+day.getDate()+'</div>';
+    head.appendChild(dh);
+  }
+  cal.appendChild(head);
+
+  const body=document.createElement('div'); body.className='cal-body';
+  const gut=document.createElement('div'); gut.className='cal-gutter'; gut.style.height=totalH+'px';
+  for(let h=sH;h<=eH;h++){ const l=document.createElement('div'); l.className='hr'; l.style.top=((h-sH)*hh)+'px'; l.textContent=h+':00'; gut.appendChild(l); }
+  body.appendChild(gut);
+
+  const nowMin=new Date().getHours()*60+new Date().getMinutes();
+  for(let i=0;i<7;i++){
+    const col=document.createElement('div'); col.className='cal-col'; col.style.height=totalH+'px';
+    const evs=cols[i].map(e=>Object.assign({},e,{_s:Date.parse(e.start),_e:Date.parse(e.start)+e.min*60000})).sort((a,b)=>a._s-b._s);
+    // chia làn cho các khối chồng giờ
+    let cl=[],curEnd=0; const clusters=[];
+    evs.forEach(e=>{ if(cl.length && e._s>=curEnd){ clusters.push(cl); cl=[]; curEnd=0; } cl.push(e); curEnd=Math.max(curEnd,e._e); });
+    if(cl.length) clusters.push(cl);
+    clusters.forEach(group=>{ const lanes=[]; group.forEach(e=>{ let p=false; for(let li=0;li<lanes.length;li++){ if(e._s>=lanes[li]){ e._lane=li; lanes[li]=e._e; p=true; break; } } if(!p){ e._lane=lanes.length; lanes.push(e._e); } }); group.forEach(e=>e._lc=lanes.length); });
+    evs.forEach(e=>col.appendChild(evEl(e,sH,hh)));
+    if(i===0 && nowMin>=sH*60 && nowMin<=eH*60){ const nl=document.createElement('div'); nl.className='nowline'; nl.style.top=((nowMin-sH*60)/60*hh)+'px'; col.appendChild(nl); }
+    body.appendChild(col);
+  }
+  cal.appendChild(body);
+  scroll.appendChild(cal); view.appendChild(scroll);
+
+  // Việc chưa xếp được
   const backlog=tasks.filter(t=>t.status!=='done'&&!t.fixed&&(!t.blocks||t.blocks.length===0));
   if(backlog.length){
-    const g=document.createElement('div'); g.className='group backlog';
+    const g=document.createElement('div'); g.className='group backlog'; g.style.marginTop='16px';
     g.innerHTML='<div class="group-head"><span class="day">📥 Chưa xếp được</span><span class="count">'+backlog.length+' việc</span></div>';
-    backlog.sort((a,b)=>score(b)-score(a)).forEach(t=>{
-      g.appendChild(blockEl(t,{start:null,min:t.durationMin}));
-    });
+    backlog.sort((a,b)=>score(b)-score(a)).forEach(t=>g.appendChild(blockEl(t,{start:null,min:t.durationMin})));
     view.appendChild(g);
   }
 }
