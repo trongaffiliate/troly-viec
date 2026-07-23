@@ -658,7 +658,11 @@ function reportData(){
   tasks.forEach(t=>{ (t.blocks||[]).forEach(b=>{ if(inWeek(b.start)){ planMin+=b.min; byCat[t.category]=(byCat[t.category]||0)+b.min; } }); if(t.status==='done'&&inWeek(t.doneAt)) doneMin+=t.durationMin; });
   const late=tasks.filter(t=>t.status!=='done'&&t.due&&t.due<ymd(today())).length;
   const doneList=tasks.filter(t=>t.status==='done'&&inWeek(t.doneAt)); const todoList=tasks.filter(t=>t.status!=='done');
-  return {planMin,doneMin,late,byCat,doneList,todoList};
+  const WDS=['CN','T2','T3','T4','T5','T6','T7']; const days=[]; const dayIdx={};
+  for(let i=6;i>=0;i--){ const dd=addDays(today(),-i); const k=ymd(dd); dayIdx[k]=days.length; days.push({date:k,wd:WDS[dd.getDay()],dnum:dd.getDate(),min:0,isToday:i===0}); }
+  tasks.forEach(t=>{ if(t.status==='done'&&t.doneAt){ const dk=t.doneAt.slice(0,10); if(dk in dayIdx) days[dayIdx[dk]].min+=(t.durationMin||0); } });
+  const doneCount=doneList.length, openCount=todoList.length;
+  return {planMin,doneMin,late,byCat,doneList,todoList,doneByDay:days,doneCount,openCount};
 }
 function hoursTxt(min){ const h=Math.floor(min/60),m=min%60; return ((h?h+'h':'')+(m?m+'′':''))||'0'; }
 function ruleReport(d){
@@ -681,19 +685,67 @@ function mdToHtml(md){
     else if(line===''){ if(inList){html+='</ul>';inList=false;} }
     else { if(inList){html+='</ul>';inList=false;} html+='<p>'+inl(line)+'</p>'; } } if(inList)html+='</ul>'; return html;
 }
+function donutSVG(pct){ const r=54,c=2*Math.PI*r,off=c*(1-Math.max(0,Math.min(100,pct))/100);
+  return '<svg width="128" height="128" viewBox="0 0 128 128">'
+    +'<circle cx="64" cy="64" r="'+r+'" fill="none" stroke="var(--surface-2)" stroke-width="13"/>'
+    +'<circle cx="64" cy="64" r="'+r+'" fill="none" stroke="url(#rgrad)" stroke-width="13" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" transform="rotate(-90 64 64)"/>'
+    +'<defs><linearGradient id="rgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)"/></linearGradient></defs></svg>';
+}
+const REP_PAL=['var(--accent)','var(--p3)','var(--habit)','var(--p2)','var(--p1)','var(--p4)','var(--accent-2)','var(--done)','var(--fixed)'];
+function repCard(){ const c=document.createElement('div'); c.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px'; return c; }
 function renderReport(view){
   const head=document.createElement('div'); head.className='vhead'; head.innerHTML='<div><h2>Báo cáo tuần</h2><span class="sub">7 ngày gần đây</span></div>'; view.appendChild(head);
   const d=reportData();
-  const stats=document.createElement('div'); stats.className='stats';
-  [['plan','Đã sắp lịch',hoursTxt(d.planMin)],['done','Hoàn thành',hoursTxt(d.doneMin)],['late','Quá hạn',d.late],['','Việc tồn',d.todoList.length]].forEach(([cls,l,n])=>{ const s=document.createElement('div'); s.className='stat '+cls; s.innerHTML='<div class="n">'+n+'</div><div class="l">'+l+'</div>'; stats.appendChild(s); });
-  view.appendChild(stats);
-  const act=document.createElement('div'); act.className='report-actions';
-  const gen=document.createElement('button'); gen.className='btn btn-primary'; gen.textContent=settings.apiKey?'Tạo báo cáo bằng AI':'Tạo báo cáo';
-  gen.onclick=async()=>{ if(settings.apiKey){ gen.disabled=true; gen.textContent='Đang viết…'; try{ lastReport=await aiReport(d); }catch(e){ console.warn(e); lastReport=ruleReport(d); toast('AI bận — báo cáo cơ bản'); } gen.disabled=false; gen.textContent='Tạo lại'; } else lastReport=ruleReport(d); renderCard(view); };
+  if(!tasks.length){ view.appendChild(emptyState('chart','Chưa có dữ liệu. Thêm và hoàn thành vài việc để xem báo cáo trực quan.')); return; }
+  const pct = d.planMin>0 ? Math.min(100,Math.round(d.doneMin/d.planMin*100)) : (d.doneCount?100:0);
+
+  // 1) Hero: vòng tròn hoàn thành + 4 chỉ số
+  const hero=repCard(); hero.style.display='flex'; hero.style.flexWrap='wrap'; hero.style.gap='22px'; hero.style.alignItems='center';
+  const ring=document.createElement('div'); ring.style.cssText='position:relative;width:128px;height:128px;flex:none';
+  ring.innerHTML=donutSVG(pct)+'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:30px;font-weight:800;letter-spacing:-1px">'+pct+'%</div><div style="font-size:11.5px;color:var(--muted);font-weight:600">hoàn thành</div></div>';
+  hero.appendChild(ring);
+  const grid=document.createElement('div'); grid.style.cssText='flex:1;min-width:220px;display:grid;grid-template-columns:repeat(2,1fr);gap:11px';
+  [['Đã sắp lịch',hoursTxt(d.planMin),'var(--accent)'],['Hoàn thành',hoursTxt(d.doneMin),'var(--done)'],['Quá hạn',d.late,'var(--p1)'],['Việc còn tồn',d.openCount,'var(--text)']].forEach(([l,n,col])=>{ const s=document.createElement('div'); s.style.cssText='background:var(--surface-2);border-radius:12px;padding:13px 14px'; s.innerHTML='<div style="font-size:23px;font-weight:800;letter-spacing:-.6px;color:'+col+'">'+n+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">'+l+'</div>'; grid.appendChild(s); });
+  hero.appendChild(grid); view.appendChild(hero);
+
+  // 2) Biểu đồ cột: hoàn thành theo ngày
+  const wk=repCard();
+  wk.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px">Hoàn thành theo ngày</div>';
+  const maxDay=Math.max(60,...d.doneByDay.map(x=>x.min));
+  const bars=document.createElement('div'); bars.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:130px';
+  d.doneByDay.forEach(day=>{ const col=document.createElement('div'); col.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px';
+    const h=Math.round(day.min/maxDay*96); const val=day.min?hoursTxt(day.min):'';
+    col.innerHTML='<div style="font-size:10.5px;font-weight:700;color:var(--muted);min-height:13px">'+val+'</div>'
+      +'<div style="width:100%;max-width:34px;height:'+Math.max(day.min?6:2,h)+'px;border-radius:7px 7px 3px 3px;background:'+(day.min?'linear-gradient(var(--accent),var(--accent-2))':'var(--surface-2)')+'"></div>'
+      +'<div style="font-size:11px;font-weight:'+(day.isToday?'800':'600')+';color:'+(day.isToday?'var(--accent)':'var(--muted)')+'">'+day.wd+'</div>';
+    bars.appendChild(col); });
+  wk.appendChild(bars); view.appendChild(wk);
+
+  // 3) Thanh ngang: thời gian theo nhóm
+  const catArr=Object.entries(d.byCat).sort((a,b)=>b[1]-a[1]);
+  if(catArr.length){ const cc=repCard();
+    cc.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px">Thời gian theo nhóm</div>';
+    const maxCat=catArr[0][1]||1;
+    catArr.forEach(([k,v],i)=>{ const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:12px;margin-bottom:11px';
+      row.innerHTML='<div style="width:82px;flex:none;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(k)+'</div>'
+        +'<div style="flex:1;height:12px;border-radius:6px;background:var(--surface-2);overflow:hidden"><div style="height:100%;width:'+Math.max(4,Math.round(v/maxCat*100))+'%;border-radius:6px;background:'+REP_PAL[i%REP_PAL.length]+'"></div></div>'
+        +'<div style="width:46px;flex:none;text-align:right;font-size:12.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums">'+hoursTxt(v)+'</div>';
+      cc.appendChild(row); });
+    view.appendChild(cc);
+  }
+
+  // 4) AI viết nhận xét
+  const aiSec=repCard();
+  aiSec.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px">Nhận xét &amp; gợi ý</div>';
+  const act=document.createElement('div'); act.className='report-actions'; act.style.marginBottom='14px';
+  const gen=document.createElement('button'); gen.className='btn btn-primary'; gen.textContent=settings.apiKey?'Tạo nhận xét bằng AI':'Tạo nhận xét';
+  gen.onclick=async()=>{ if(settings.apiKey){ gen.disabled=true; gen.textContent='Đang viết…'; try{ lastReport=await aiReport(d); }catch(e){ console.warn(e); lastReport=ruleReport(d); toast('AI bận — nhận xét cơ bản'); } gen.disabled=false; gen.textContent='Tạo lại'; } else lastReport=ruleReport(d); renderRepCard(aiSec); };
   act.appendChild(gen);
   if(lastReport){ const cp=document.createElement('button'); cp.className='btn btn-secondary'; cp.textContent='Sao chép'; cp.onclick=()=>navigator.clipboard.writeText(lastReport).then(()=>toast('Đã sao chép')); act.appendChild(cp); }
-  view.appendChild(act); renderCard(view);
+  aiSec.appendChild(act); renderRepCard(aiSec); view.appendChild(aiSec);
 }
+function renderRepCard(sec){ let card=sec.querySelector('.report-card'); if(!card){ card=document.createElement('div'); card.className='report-card'; card.style.boxShadow='none'; card.style.border='0'; card.style.padding='0'; card.style.background='transparent'; sec.appendChild(card); }
+  card.innerHTML=lastReport?mdToHtml(lastReport):'<p style="color:var(--muted);margin:0;font-size:13.5px">Bấm nút trên để AI viết nhận xét ngắn về tuần của bạn và gợi ý cho tuần tới.</p>'; }
 function renderCard(view){ let card=view.querySelector('.report-card'); if(!card){ card=document.createElement('div'); card.className='report-card'; view.appendChild(card); } card.innerHTML=lastReport?mdToHtml(lastReport):'<p style="color:var(--muted);margin:0">Bấm nút phía trên để tạo tổng kết việc đã và chưa làm trong tuần.</p>'; }
 
 /* ---------- Tab Hỏi AI ---------- */
@@ -739,7 +791,11 @@ function renderAsk(view){
     const chips=document.createElement('div'); chips.style.cssText='display:flex;flex-wrap:wrap;gap:8px';
     ['Tuần này tôi làm được bao nhiêu giờ?','Tôi còn việc nào quá hạn không?','Nhóm việc nào tôi tốn nhiều thời gian nhất?','Hôm nay tôi có lịch gì?'].forEach(q=>{ const c=document.createElement('button'); c.className='chip'; c.textContent=q; c.onclick=()=>doAsk(q); chips.appendChild(c); });
     chat.appendChild(chips);
-  } else askLog.forEach(m=>chat.appendChild(askBubble(m)));
+  } else { askLog.forEach(m=>chat.appendChild(askBubble(m)));
+    const last=askLog[askLog.length-1];
+    if(last && last.role==='ai' && !last.pending){ const fu=document.createElement('div'); fu.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px';
+      ['Còn việc nào gấp không?','Gợi ý cách sắp xếp tuần tới','Tôi làm nhiều nhất vào ngày nào?'].forEach(q=>{ const c=document.createElement('button'); c.className='chip'; c.textContent=q; c.onclick=()=>doAsk(q); fu.appendChild(c); }); chat.appendChild(fu); }
+  }
   view.appendChild(chat);
   const bar=document.createElement('div'); bar.style.cssText='display:flex;gap:8px;align-items:flex-end;position:sticky;bottom:0;background:var(--bg);padding:10px 0 6px;border-top:1px solid var(--line)';
   const inp=document.createElement('textarea'); inp.rows=1; inp.placeholder='Hỏi về lịch, việc đã làm, thống kê…'; inp.style.cssText='flex:1;resize:none;padding:11px 13px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14.5px;outline:none;max-height:120px';
