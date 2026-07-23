@@ -293,7 +293,7 @@
     <div class="checkrow"><label><input type="checkbox" id="workSat"> Làm thứ Bảy</label><label><input type="checkbox" id="workSun"> Làm Chủ nhật</label></div>
     <div class="sec-title">Trợ lý AI (không bắt buộc)</div>
     <div class="field"><label>Chìa khoá API (Anthropic)</label><input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off"></div>
-    <div class="field"><label>Mức trí tuệ AI</label><select id="model"><option value="claude-opus-4-8">Cao cấp — thông minh nhất (mặc định)</option><option value="claude-haiku-4-5">Tiết kiệm — nhanh &amp; rẻ hơn</option></select></div>
+    <div class="field"><label>Mức trí tuệ AI</label><select id="model"><option value="claude-opus-4-8">Cao cấp — thông minh nhất (mặc định)</option><option value="claude-haiku-4-5-20251001">Tiết kiệm — nhanh &amp; rẻ hơn</option></select></div>
     <div class="note">Chìa khoá chỉ lưu trên máy này. Cách lấy: vào console.anthropic.com → mục API Keys → tạo key → dán vào đây.</div>
     <div class="sec-title">Google Calendar</div>
     <div class="field"><label>Mã ứng dụng Google (Client ID)</label><input id="gClientId" placeholder="....apps.googleusercontent.com" autocomplete="off"></div>
@@ -450,11 +450,19 @@ function runScheduler(){
 
 /* ---------- AI ---------- */
 async function callClaude(system,userText,maxTokens,schema){
-  const body={model:settings.model||'claude-opus-4-8',max_tokens:maxTokens,system,messages:[{role:'user',content:userText}]};
-  if(schema) body.output_config={format:{type:'json_schema',schema}};
+  let sys=system; if(schema) sys+='\n\nQUAN TRỌNG: Chỉ trả về JSON hợp lệ đúng cấu trúc mô tả ở trên. KHÔNG kèm bất kỳ lời giải thích nào, KHÔNG dùng khối ```.';
+  const body={model:settings.model||'claude-opus-4-8',max_tokens:maxTokens,system:sys,messages:[{role:'user',content:userText}]};
   const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
-  if(!res.ok){ throw new Error('API '+res.status+': '+(await res.text()).slice(0,200)); }
+  if(!res.ok){ let d=''; try{ d=await res.text(); }catch(e){} throw new Error('API '+res.status+': '+d.slice(0,300)); }
   const data=await res.json(); const b=(data.content||[]).find(x=>x.type==='text'); return b?b.text:'';
+}
+function extractJSON(raw){ let s=(raw||'').replace(/```json|```/g,'').trim(); const a=s.indexOf('{'), b=s.lastIndexOf('}'); if(a>=0&&b>a) s=s.slice(a,b+1); return JSON.parse(s); }
+function aiErrMsg(e){ const m=((e&&e.message)||'').toLowerCase();
+  if(/credit|balance|billing|payment|quota|insufficient/.test(m)) return 'Tài khoản API chưa có tiền — vào console.anthropic.com mục Billing nạp ~5 USD.';
+  if(/401|authentication|x-api-key|invalid.*key|permission/.test(m)) return 'API key sai hoặc chưa có quyền — kiểm tra lại key trong Cài đặt.';
+  if(/404|not.*found|model/.test(m)) return 'Model không dùng được — thử đổi "Mức trí tuệ AI" trong Cài đặt.';
+  if(/429|rate|overloaded|529/.test(m)) return 'AI đang quá tải — thử lại sau chút.';
+  return 'Lỗi gọi AI: '+((e&&e.message)||'không rõ').slice(0,120);
 }
 const PARSE_SCHEMA={type:'object',properties:{tasks:{type:'array',items:{type:'object',properties:{title:{type:'string'},fixed:{type:'boolean'},date:{type:'string'},time:{type:'string'},durationMin:{type:'integer'},priority:{type:'string',enum:['P1','P2','P3','P4']},category:{type:'string'}},required:['title','fixed','date','time','durationMin','priority','category'],additionalProperties:false}}},required:['tasks'],additionalProperties:false};
 function learnedProfile(){
@@ -482,8 +490,7 @@ async function aiParse(text){
 - priority: P1 gấp/khẩn, P2 quan trọng, P4 thong thả, còn lại P3.
 - category: một trong ${CATS.join(', ')}.${prof.length?'\nThói quen ĐÃ HỌC từ lịch sử của người dùng (ưu tiên dùng để đoán thời lượng & giờ khi họ KHÔNG nói rõ): '+prof.join('; ')+'.':''}
 Chỉ trả về dữ liệu.`;
-  let raw=(await callClaude(sys,text,1200,PARSE_SCHEMA)).replace(/```json|```/g,'').trim();
-  const obj=JSON.parse(raw); const arr=Array.isArray(obj)?obj:(obj.tasks||[]);
+  const obj=extractJSON(await callClaude(sys,text,1200,PARSE_SCHEMA)); const arr=Array.isArray(obj)?obj:(obj.tasks||[]);
   return arr.map(x=>{ const hasTime=/^\d{1,2}:\d{2}$/.test(x.time||''); let date=/^\d{4}-\d{2}-\d{2}$/.test(x.date||'')?x.date:null; let fixed=!!x.fixed&&hasTime; if(fixed&&!date) date=ymd(t);
     return {id:uid(),title:(x.title||text).trim(),category:CATS.includes(x.category)?x.category:'Khác',priority:['P1','P2','P3','P4'].includes(x.priority)?x.priority:'P3',durationMin:Math.max(15,Math.min(480,+x.durationMin||30)),due:(!fixed&&date)?date:null,fixed,fixedStart:fixed?date+'T'+x.time:null,status:'chua',locked:false,blocks:[],createdAt:new Date().toISOString(),doneAt:null}; });
 }
@@ -523,7 +530,7 @@ async function handleAdd(){
   const el=document.getElementById('input'); const text=el.value.trim(); if(!text){el.focus();return;}
   const btn=document.getElementById('btnAdd'); let added;
   if(settings.apiKey){ btn.disabled=true; btn.innerHTML=svg('plus')+'<span>Đang phân tích…</span>';
-    try{ added=await aiParse(text); }catch(e){ console.warn(e); added=ruleParse(text); toast('AI bận — dùng chế độ cơ bản'); }
+    try{ added=await aiParse(text); }catch(e){ console.warn(e); added=ruleParse(text); toast(aiErrMsg(e)); }
     btn.disabled=false; btn.innerHTML=svg('plus')+'<span>Thêm việc</span>';
   } else added=ruleParse(text);
   tasks=added.concat(tasks); const un=runScheduler(); el.value=''; autoGrow(); currentTab='plan'; setActiveNav(); render();
@@ -834,15 +841,14 @@ Trả lời CHỈ dựa trên dữ liệu trên. Trả về JSON:
 - "metrics" (KHÔNG bắt buộc): tối đa 4 con số nổi bật để hiển thị to, mỗi cái {label, value} (value dạng chữ như "3h30" hoặc "5 việc"). CHỈ thêm khi câu hỏi mang tính thống kê/con số.
 - "bars" (KHÔNG bắt buộc): tối đa 7 cột để vẽ biểu đồ nếu câu hỏi so sánh theo ngày/nhóm/tuần, mỗi cột {label ngắn, value là SỐ}. Kèm "barsUnit" (đơn vị: "giờ" hoặc "việc").
 Nếu chỉ là câu hỏi thường (không thống kê) thì chỉ cần "answer". Nếu dữ liệu chưa đủ, nói thẳng trong answer. KHÔNG bịa số liệu.`;
-  const raw=(await callClaude(sys,q,1300,ASK_SCHEMA)).replace(/```json|```/g,'').trim();
-  return JSON.parse(raw);
+  return extractJSON(await callClaude(sys,q,1300,ASK_SCHEMA));
 }
 async function doAsk(q){
   q=(q||'').trim(); if(!q) return;
   if(!settings.apiKey){ openSettings(); toast('Cần API key để hỏi AI'); return; }
   askLog.push({role:'user',text:q}); askLog.push({role:'ai',text:'Đang xem lịch của bạn…',pending:true}); render();
   try{ const data=await askAI(q); askLog[askLog.length-1]={role:'ai',data:(data&&data.answer!=null)?data:{answer:'(chưa có trả lời)'}}; }
-  catch(e){ console.warn(e); askLog[askLog.length-1]={role:'ai',text:'Xin lỗi, AI đang bận. Anh thử lại giúp mình nhé.'}; }
+  catch(e){ console.warn(e); askLog[askLog.length-1]={role:'ai',text:aiErrMsg(e)}; }
   render();
 }
 function askBubble(m){
