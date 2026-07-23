@@ -299,6 +299,10 @@
     <div class="field"><label>Mã ứng dụng Google (Client ID)</label><input id="gClientId" placeholder="....apps.googleusercontent.com" autocomplete="off"></div>
     <div id="gStatus" style="margin:4px 0 2px"></div>
     <div class="note">Đăng nhập Google + đồng bộ lịch 2 chiều. Chỉ chạy trên link web (điện thoại/máy), không chạy khi mở file trực tiếp. Cần dán Client ID (miễn phí, tạo 1 lần) — nhắn tôi để xem hướng dẫn.</div>
+    <div class="field" style="margin-top:12px"><label>Link Google Docs ghi việc hằng ngày (không bắt buộc)</label><input id="gDocId" placeholder="dán link Google Docs…" autocomplete="off"></div>
+    <div class="checkrow"><label><input type="checkbox" id="gDocAuto"> Tự nhập việc từ Docs mỗi khi mở app</label></div>
+    <button class="btn btn-secondary" id="btnDocImport" type="button">Nhập việc từ Docs ngay</button>
+    <div class="note">Đọc các dòng việc trong Google Docs của bạn rồi thêm vào Complete Later (AI tự đoán ngày/giờ). Dòng đã nhập sẽ không nhập lại. Cần đã kết nối Google.</div>
     <div class="sec-title">Nhắc việc</div>
     <div class="checkrow"><label><input type="checkbox" id="remindOn"> Nhắc trước khi tới giờ</label><label><input type="checkbox" id="remindSound"> Chuông báo</label></div>
     <div class="field"><label>Nhắc trước (phút)</label><select id="remindMin"><option value="5">5 phút</option><option value="10">10 phút</option><option value="15">15 phút</option><option value="30">30 phút</option><option value="60">60 phút</option></select></div>
@@ -317,7 +321,7 @@
 /* =========================================================================
    TRỢ LÝ VIỆC — trợ lý tự động sắp lịch (layout sidebar cao cấp)
    ========================================================================= */
-const LS_TASKS='trolyviec_tasks_v2', LS_SET='trolyviec_set_v2', LS_HAB='trolyviec_hab_v2';
+const LS_TASKS='trolyviec_tasks_v2', LS_SET='trolyviec_set_v2', LS_HAB='trolyviec_hab_v2', LS_DOC='trolyviec_docimported_v1';
 const HORIZON=14;
 const PR_LABEL={P1:'Rất gấp',P2:'Quan trọng',P3:'Bình thường',P4:'Thong thả'};
 const CATS=['Họp','Gọi điện','Email','Khách hàng','Tài chính','Nhân sự','Marketing','Cá nhân','Khác'];
@@ -325,7 +329,7 @@ const CATS=['Họp','Gọi điện','Email','Khách hàng','Tài chính','Nhân 
 let tasks=load(LS_TASKS,[]);
 let habits=load(LS_HAB,[]);
 let habitBlocks=[];
-let settings=Object.assign({apiKey:'',model:'claude-opus-4-8',workStart:'08:00',workEnd:'18:00',lunchOn:true,lunchStart:'12:00',lunchEnd:'13:30',workSat:true,workSun:false,buffer:10,maxChunk:120,minChunk:30,googleClientId:'',googleConnected:false,googleUser:null,remindOn:false,remindMin:10,remindSound:true}, load(LS_SET,{}));
+let settings=Object.assign({apiKey:'',model:'claude-opus-4-8',workStart:'08:00',workEnd:'18:00',lunchOn:true,lunchStart:'12:00',lunchEnd:'13:30',workSat:true,workSun:false,buffer:10,maxChunk:120,minChunk:30,googleClientId:'',googleConnected:false,googleUser:null,remindOn:false,remindMin:10,remindSound:true,googleDocId:'',googleDocAuto:false}, load(LS_SET,{}));
 let currentTab='plan', taskFilter='chua', lastReport=null;
 
 function load(k,def){ try{return JSON.parse(localStorage.getItem(k))??def;}catch(e){return def;} }
@@ -937,14 +941,15 @@ function setupUI(){
   document.getElementById('sideSet').onclick=openSettings;
   document.getElementById('btnCloseSettings').onclick=()=>document.getElementById('overlay').classList.remove('open');
   const overlay=document.getElementById('overlay'); overlay.onclick=e=>{ if(e.target===overlay) overlay.classList.remove('open'); };
-  document.getElementById('btnSaveSettings').onclick=()=>{ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>settings[id]=document.getElementById(id).value); settings.apiKey=document.getElementById('apiKey').value.trim(); settings.googleClientId=document.getElementById('gClientId').value.trim(); settings.lunchOn=document.getElementById('lunchOn').checked; settings.workSat=document.getElementById('workSat').checked; settings.workSun=document.getElementById('workSun').checked; settings.remindOn=document.getElementById('remindOn').checked; settings.remindSound=document.getElementById('remindSound').checked; settings.remindMin=+document.getElementById('remindMin').value||10; save(); runScheduler(); render(); renderGoogleStatus();
+  document.getElementById('btnSaveSettings').onclick=()=>{ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>settings[id]=document.getElementById(id).value); settings.apiKey=document.getElementById('apiKey').value.trim(); settings.googleClientId=document.getElementById('gClientId').value.trim(); settings.googleDocId=document.getElementById('gDocId').value.trim(); settings.googleDocAuto=document.getElementById('gDocAuto').checked; settings.lunchOn=document.getElementById('lunchOn').checked; settings.workSat=document.getElementById('workSat').checked; settings.workSun=document.getElementById('workSun').checked; settings.remindOn=document.getElementById('remindOn').checked; settings.remindSound=document.getElementById('remindSound').checked; settings.remindMin=+document.getElementById('remindMin').value||10; save(); runScheduler(); render(); renderGoogleStatus();
     if(settings.remindOn && 'Notification' in window && Notification.permission==='default'){ Notification.requestPermission().then(()=>startReminders()); } else startReminders();
     toast('Đã lưu & sắp lại lịch'); };
   document.getElementById('btnExport').onclick=exportData;
   document.getElementById('btnImport').onclick=()=>document.getElementById('importFile').click();
   document.getElementById('importFile').onchange=e=>{ if(e.target.files&&e.target.files[0]) importData(e.target.files[0]); e.target.value=''; };
+  document.getElementById('btnDocImport').onclick=()=>{ settings.googleDocId=document.getElementById('gDocId').value.trim(); save(); gImportDoc(false); };
 }
-function openSettings(){ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>document.getElementById(id).value=settings[id]); document.getElementById('apiKey').value=settings.apiKey; document.getElementById('gClientId').value=settings.googleClientId||''; document.getElementById('lunchOn').checked=settings.lunchOn; document.getElementById('workSat').checked=settings.workSat; document.getElementById('workSun').checked=settings.workSun; document.getElementById('remindOn').checked=!!settings.remindOn; document.getElementById('remindSound').checked=settings.remindSound!==false; document.getElementById('remindMin').value=String(settings.remindMin||10); renderGoogleStatus(); document.getElementById('overlay').classList.add('open'); }
+function openSettings(){ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>document.getElementById(id).value=settings[id]); document.getElementById('apiKey').value=settings.apiKey; document.getElementById('gClientId').value=settings.googleClientId||''; document.getElementById('gDocId').value=settings.googleDocId||''; document.getElementById('gDocAuto').checked=!!settings.googleDocAuto; document.getElementById('lunchOn').checked=settings.lunchOn; document.getElementById('workSat').checked=settings.workSat; document.getElementById('workSun').checked=settings.workSun; document.getElementById('remindOn').checked=!!settings.remindOn; document.getElementById('remindSound').checked=settings.remindSound!==false; document.getElementById('remindMin').value=String(settings.remindMin||10); renderGoogleStatus(); document.getElementById('overlay').classList.add('open'); }
 
 /* ---------- Sao lưu & khôi phục dữ liệu ---------- */
 function exportData(){
@@ -1079,7 +1084,7 @@ function injectIcon(){
 }
 
 /* ---------- Google: đăng nhập + đồng bộ Lịch (2 chiều) ---------- */
-const G_SCOPE='openid email profile https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly';
+const G_SCOPE='openid email profile https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/documents.readonly';
 const G_LOGO='<svg width="18" height="18" viewBox="0 0 48 48" style="flex:none"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';
 let gcalBusy=[];
 let gState={token:null,exp:0,tc:null};
@@ -1147,7 +1152,31 @@ function renderGoogleStatus(){ const box=document.getElementById('gStatus'); if(
   } else { const btn=document.createElement('button'); btn.className='btn'; btn.style.cssText='width:100%;justify-content:center;background:#fff;color:#3c4043;border:1px solid #dadce0;font-weight:600;box-shadow:0 1px 2px rgba(60,64,67,.12)';
     btn.innerHTML=G_LOGO+'<span>Kết nối với Google</span>'; btn.onclick=gConnect; box.appendChild(btn); }
 }
-function gAutoConnect(){ if(settings.googleConnected && !gIsFile() && settings.googleClientId){ gGetToken(false).then(()=>gPull()).then(()=>{ runScheduler(); render(); }).catch(()=>{}); } }
+function gAutoConnect(){ if(settings.googleConnected && !gIsFile() && settings.googleClientId){ gGetToken(false).then(()=>gPull()).then(()=>{ runScheduler(); render(); if(settings.googleDocAuto && settings.googleDocId) gImportDoc(true); }).catch(()=>{}); } }
+
+/* ---------- Nhập việc từ Google Docs ---------- */
+function parseDocId(s){ if(!s) return ''; const m=String(s).match(/\/document\/d\/([a-zA-Z0-9_-]{20,})/); return m?m[1]:String(s).trim(); }
+async function gImportDoc(silent){
+  if(gIsFile()){ if(!silent) toast('Chỉ chạy trên link web'); return; }
+  if(!settings.googleConnected){ if(!silent){ toast('Kết nối Google trước'); openSettings(); } return; }
+  const id=parseDocId(settings.googleDocId); if(!id){ if(!silent) toast('Dán link Google Docs trước'); return; }
+  if(!silent) toast('Đang đọc Google Docs…');
+  try{ const url='https://docs.googleapis.com/v1/documents/'+encodeURIComponent(id);
+    let r=await gFetch(url);
+    if(r.status===401||r.status===403){ gState.token=null; try{ await gGetToken(true); }catch(e){} r=await gFetch(url); }
+    if(!r.ok){ if(!silent) toast('Đọc Docs lỗi '+r.status+(r.status===403?' (cần cấp lại quyền — Ngắt rồi Kết nối Google lại)':'')); return; }
+    const doc=await r.json(); const lines=[];
+    (doc.body&&doc.body.content||[]).forEach(el=>{ if(el.paragraph){ let t=''; (el.paragraph.elements||[]).forEach(pe=>{ if(pe.textRun&&pe.textRun.content) t+=pe.textRun.content; }); t=t.replace(/\s+/g,' ').trim(); if(t) lines.push(t); } });
+    const imported=load(LS_DOC,[]); const impSet=new Set(imported);
+    const fresh=lines.filter(l=>l.length>2 && !impSet.has(l) && !/^(danh sách|việc cần làm|to.?do|ngày|hôm nay|tuần)\b\s*[:：]?\s*$/i.test(l));
+    if(!fresh.length){ if(!silent) toast('Không có dòng việc mới trong Docs'); return; }
+    let added; try{ added = settings.apiKey ? await aiParse(fresh.join('\n')) : ruleParse(fresh.join('\n')); }
+    catch(e){ added=ruleParse(fresh.join('\n')); }
+    tasks=added.concat(tasks); fresh.forEach(l=>imported.push(l)); localStorage.setItem(LS_DOC, JSON.stringify(imported.slice(-800)));
+    save(); runScheduler(); render();
+    toast('Đã nhập '+added.length+' việc từ Google Docs');
+  }catch(e){ console.warn(e); if(!silent) toast('Nhập Docs lỗi: '+(e.message||e)); }
+}
 
 function handleLoginParam(){ try{ const p=new URLSearchParams(location.search); if(p.get('login')==='1'){
   if(settings.googleConnected) return;
