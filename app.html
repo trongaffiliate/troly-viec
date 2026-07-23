@@ -439,8 +439,22 @@ async function callClaude(system,userText,maxTokens,schema){
   const data=await res.json(); const b=(data.content||[]).find(x=>x.type==='text'); return b?b.text:'';
 }
 const PARSE_SCHEMA={type:'object',properties:{tasks:{type:'array',items:{type:'object',properties:{title:{type:'string'},fixed:{type:'boolean'},date:{type:'string'},time:{type:'string'},durationMin:{type:'integer'},priority:{type:'string',enum:['P1','P2','P3','P4']},category:{type:'string'}},required:['title','fixed','date','time','durationMin','priority','category'],additionalProperties:false}}},required:['tasks'],additionalProperties:false};
+function learnedProfile(){
+  const byCat={};
+  tasks.forEach(t=>{ const c=t.category||'Khác'; (byCat[c]=byCat[c]||{durs:[],hours:[]});
+    if(t.durationMin) byCat[c].durs.push(t.durationMin);
+    let hs=null; if(t.fixed&&t.fixedStart) hs=+t.fixedStart.slice(11,13); else if(t.doneAt){ const dt=new Date(t.doneAt); if(!isNaN(dt)) hs=dt.getHours(); }
+    if(hs!=null && !isNaN(hs)) byCat[c].hours.push(hs); });
+  const prof=[];
+  Object.entries(byCat).forEach(([c,o])=>{ if(o.durs.length<2) return;
+    const avg=Math.round(o.durs.reduce((a,b)=>a+b,0)/o.durs.length/5)*5;
+    let s=c+' thường ~'+avg+' phút';
+    if(o.hours.length>=2){ const hm=Math.round(o.hours.reduce((a,b)=>a+b,0)/o.hours.length); s+=', hay làm quanh '+pad(hm)+':00'; }
+    prof.push(s); });
+  return prof;
+}
 async function aiParse(text){
-  const t=today();
+  const t=today(); const prof=learnedProfile();
   const sys=`Bạn là trợ lý sắp lịch cho người làm kinh doanh ở Việt Nam. Người dùng nói/gõ ý tưởng công việc bằng tiếng Việt (có thể nhiều việc). Tách thành các công việc riêng, mỗi việc gồm:
 - title: mô tả ngắn gọn tiếng Việt.
 - fixed: true nếu là cuộc hẹn/họp có giờ cố định; false nếu linh hoạt.
@@ -448,7 +462,7 @@ async function aiParse(text){
 - time: "HH:MM" 24h nếu có giờ cụ thể, ngược lại "".
 - durationMin: thời lượng ước tính theo phút. "2 tiếng"=120.
 - priority: P1 gấp/khẩn, P2 quan trọng, P4 thong thả, còn lại P3.
-- category: một trong ${CATS.join(', ')}.
+- category: một trong ${CATS.join(', ')}.${prof.length?'\nThói quen ĐÃ HỌC từ lịch sử của người dùng (ưu tiên dùng để đoán thời lượng & giờ khi họ KHÔNG nói rõ): '+prof.join('; ')+'.':''}
 Chỉ trả về dữ liệu.`;
   let raw=(await callClaude(sys,text,1200,PARSE_SCHEMA)).replace(/```json|```/g,'').trim();
   const obj=JSON.parse(raw); const arr=Array.isArray(obj)?obj:(obj.tasks||[]);
@@ -521,6 +535,26 @@ function backlogRow(t){
 function pill(cls,txt){ const s=document.createElement('span'); s.className='pill '+cls; s.textContent=txt; return s; }
 function fmtRange(){ const a=today(), b=addDays(a,6); if(a.getMonth()===b.getMonth()) return a.getDate()+' – '+b.getDate()+' tháng '+(b.getMonth()+1); return a.getDate()+'/'+(a.getMonth()+1)+' – '+b.getDate()+'/'+(b.getMonth()+1); }
 
+function insightsCard(){
+  const items=[]; const tstr=ymd(today()), now=Date.now();
+  const overdue=tasks.filter(x=>x.status!=='done'&&x.due&&x.due<tstr);
+  if(overdue.length) items.push({ic:'zap',color:'var(--p1)',html:'Có <b>'+overdue.length+'</b> việc quá hạn — nên xử lý trước: '+escapeHtml(overdue.sort((a,b)=>score(b)-score(a))[0].title)+'.'});
+  let todayMin=0; tasks.forEach(x=>{ if(x.status==='done')return; (x.blocks||[]).forEach(bk=>{ if(bk.start.slice(0,10)===tstr) todayMin+=bk.min; }); });
+  habitBlocks.forEach(hb=>{ if(hb.start.slice(0,10)===tstr) todayMin+=hb.min; });
+  const workH=(parseInt(settings.workEnd)||18)-(parseInt(settings.workStart)||8);
+  if(todayMin>workH*60*0.85) items.push({ic:'chart',color:'var(--p2)',html:'Hôm nay khá kín (~<b>'+hoursTxt(todayMin)+'</b> việc). Cân nhắc dời bớt việc ít gấp sang ngày khác.'});
+  let next=null; tasks.forEach(x=>{ if(x.status==='done')return; (x.blocks||[]).forEach(bk=>{ const s=Date.parse(bk.start); if(s>=now&&(!next||s<next.s)) next={s,title:x.title,start:bk.start}; }); });
+  habitBlocks.forEach(hb=>{ const s=Date.parse(hb.start); if(s>=now&&(!next||s<next.s)) next={s,title:hb.habit.title,start:hb.start}; });
+  if(next && next.start.slice(0,10)===tstr) items.push({ic:'cal',color:'var(--accent)',html:'Việc kế tiếp: <b>'+escapeHtml(next.title)+'</b> lúc '+hhmm(next.start)+'.'});
+  const backlog=tasks.filter(x=>x.status!=='done'&&!x.fixed&&(!x.blocks||!x.blocks.length));
+  if(backlog.length) items.push({ic:'tasks',color:'var(--muted)',html:'<b>'+backlog.length+'</b> việc chưa xếp được chỗ — bấm "Lên lịch tự động" để thử xếp.'});
+  if(!items.length) return null;
+  const card=document.createElement('div'); card.style.cssText='background:linear-gradient(135deg,var(--accent-soft),var(--surface));border:1px solid var(--border);border-radius:14px;padding:14px 16px 12px;margin-bottom:18px;box-shadow:var(--shadow-sm)';
+  card.innerHTML='<div style="font-size:12px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px;display:flex;align-items:center;gap:7px">'+svg('zap',15)+'Gợi ý cho hôm nay</div>';
+  items.slice(0,3).forEach(it=>{ const r=document.createElement('div'); r.style.cssText='display:flex;align-items:flex-start;gap:10px;font-size:13.5px;margin:7px 0;line-height:1.5';
+    r.innerHTML='<span style="color:'+it.color+';flex:none;margin-top:1px">'+svg(it.ic,16)+'</span><span>'+it.html+'</span>'; card.appendChild(r); });
+  return card;
+}
 function renderPlan(view){
   const head=document.createElement('div'); head.className='vhead';
   head.innerHTML='<div><h2>Tuần này</h2><span class="sub">'+fmtRange()+'</span></div>';
@@ -532,6 +566,7 @@ function renderPlan(view){
   acts.appendChild(b); acts.appendChild(gsync); acts.appendChild(ics); head.appendChild(acts); view.appendChild(head);
 
   if(tasks.length===0 && habits.length===0){ view.appendChild(emptyState('cal','Lịch còn trống. Gõ hoặc bấm Nói để thêm việc đầu tiên.')); return; }
+  const ins=insightsCard(); if(ins) view.appendChild(ins);
 
   const idxOf={}; for(let i=0;i<7;i++) idxOf[ymd(addDays(today(),i))]=i;
   const cols=[[],[],[],[],[],[],[]];
@@ -755,29 +790,46 @@ function askContext(){
   arr.sort((a,b)=>String(key(b)).localeCompare(String(key(a))));
   return arr.slice(0,400).map(t=>({ viec:t.title, nhom:t.category, uu_tien:t.priority, phut:t.durationMin, trang_thai:t.status==='done'?'da_xong':'chua_xong', xong_luc:t.doneAt?t.doneAt.slice(0,16):null, co_dinh_luc:t.fixed?(t.fixedStart||'').slice(0,16):null, han:t.due||null, da_xep_lich:(t.blocks||[]).map(b=>b.start.slice(0,16)) }));
 }
+const ASK_SCHEMA={type:'object',properties:{
+  answer:{type:'string'},
+  metrics:{type:'array',items:{type:'object',properties:{label:{type:'string'},value:{type:'string'}},required:['label','value'],additionalProperties:false}},
+  bars:{type:'array',items:{type:'object',properties:{label:{type:'string'},value:{type:'number'}},required:['label','value'],additionalProperties:false}},
+  barsUnit:{type:'string'}
+},required:['answer'],additionalProperties:false};
 async function askAI(q){
   const ctx=askContext(); const habs=habits.map(h=>({thoi_quen:h.title,ngay:h.days,gio:h.time||'linh hoat',phut:h.durationMin}));
   const sys=`Bạn là trợ lý phân tích lịch làm việc của một người làm kinh doanh ở Việt Nam. Hôm nay là ${ymd(today())} (${weekdayVN(today())}).
 Dữ liệu công việc (JSON, tối đa 400 mục gần nhất): ${JSON.stringify(ctx)}
 Thói quen (JSON): ${JSON.stringify(habs)}
-Trả lời câu hỏi CHỈ dựa trên dữ liệu trên, bằng tiếng Việt, ngắn gọn, thân thiện. Có thể tính tổng giờ, đếm việc, liệt kê theo ngày/tuần/nhóm. Nếu dữ liệu không đủ để trả lời (ví dụ hỏi về mốc thời gian chưa có dữ liệu), hãy nói thẳng là chưa có dữ liệu cho khoảng đó. Dùng markdown đơn giản (- gạch đầu dòng, **đậm**). KHÔNG bịa số liệu.`;
-  return await callClaude(sys,q,1300,null);
+Trả lời CHỈ dựa trên dữ liệu trên. Trả về JSON:
+- "answer": câu trả lời tiếng Việt, ngắn gọn, thân thiện, markdown đơn giản (- gạch đầu dòng, **đậm**).
+- "metrics" (KHÔNG bắt buộc): tối đa 4 con số nổi bật để hiển thị to, mỗi cái {label, value} (value dạng chữ như "3h30" hoặc "5 việc"). CHỈ thêm khi câu hỏi mang tính thống kê/con số.
+- "bars" (KHÔNG bắt buộc): tối đa 7 cột để vẽ biểu đồ nếu câu hỏi so sánh theo ngày/nhóm/tuần, mỗi cột {label ngắn, value là SỐ}. Kèm "barsUnit" (đơn vị: "giờ" hoặc "việc").
+Nếu chỉ là câu hỏi thường (không thống kê) thì chỉ cần "answer". Nếu dữ liệu chưa đủ, nói thẳng trong answer. KHÔNG bịa số liệu.`;
+  const raw=(await callClaude(sys,q,1300,ASK_SCHEMA)).replace(/```json|```/g,'').trim();
+  return JSON.parse(raw);
 }
 async function doAsk(q){
   q=(q||'').trim(); if(!q) return;
   if(!settings.apiKey){ openSettings(); toast('Cần API key để hỏi AI'); return; }
   askLog.push({role:'user',text:q}); askLog.push({role:'ai',text:'Đang xem lịch của bạn…',pending:true}); render();
-  try{ const ans=await askAI(q); askLog[askLog.length-1]={role:'ai',text:ans||'(chưa có trả lời)'}; }
+  try{ const data=await askAI(q); askLog[askLog.length-1]={role:'ai',data:(data&&data.answer!=null)?data:{answer:'(chưa có trả lời)'}}; }
   catch(e){ console.warn(e); askLog[askLog.length-1]={role:'ai',text:'Xin lỗi, AI đang bận. Anh thử lại giúp mình nhé.'}; }
   render();
 }
 function askBubble(m){
   const wrap=document.createElement('div'); wrap.style.cssText='display:flex;margin:9px 0;'+(m.role==='user'?'justify-content:flex-end':'justify-content:flex-start');
-  const b=document.createElement('div');
-  b.style.cssText='max-width:82%;padding:11px 14px;border-radius:15px;font-size:14.5px;line-height:1.55;'+(m.role==='user'
+  const b=document.createElement('div'); const rich=m.role==='ai'&&m.data;
+  b.style.cssText='max-width:'+(rich&&(m.data.bars||m.data.metrics)?'92%':'82%')+';padding:11px 14px;border-radius:15px;font-size:14.5px;line-height:1.55;'+(m.role==='user'
     ?'background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-bottom-right-radius:5px'
     :'background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:5px');
-  if(m.role==='ai'&&!m.pending) b.innerHTML=mdToHtml(m.text); else b.textContent=m.text;
+  if(rich){ let html='';
+    if(m.data.metrics&&m.data.metrics.length){ html+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:11px">';
+      m.data.metrics.slice(0,4).forEach(mm=>{ html+='<div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:8px 13px;min-width:70px"><div style="font-size:19px;font-weight:800;letter-spacing:-.5px;color:var(--accent)">'+escapeHtml(String(mm.value))+'</div><div style="font-size:11px;color:var(--muted);margin-top:1px">'+escapeHtml(mm.label)+'</div></div>'; }); html+='</div>'; }
+    if(m.data.bars&&m.data.bars.length){ const mx=Math.max(...m.data.bars.map(x=>+x.value||0),1); html+='<div style="margin-bottom:11px">';
+      m.data.bars.slice(0,7).forEach(bb=>{ const w=Math.max(4,Math.round((+bb.value||0)/mx*100)); html+='<div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><div style="width:78px;flex:none;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(bb.label)+'</div><div style="flex:1;height:10px;border-radius:5px;background:var(--surface);overflow:hidden"><div style="height:100%;width:'+w+'%;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--accent-2))"></div></div><div style="flex:none;font-size:11.5px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums">'+escapeHtml(String(bb.value))+(m.data.barsUnit?(' '+escapeHtml(m.data.barsUnit)):'')+'</div></div>'; }); html+='</div>'; }
+    html+=mdToHtml(m.data.answer||''); b.innerHTML=html;
+  } else if(m.role==='ai'&&!m.pending) b.innerHTML=mdToHtml(m.text||''); else b.textContent=m.text;
   if(m.pending) b.style.opacity='.6';
   wrap.appendChild(b); return wrap;
 }
