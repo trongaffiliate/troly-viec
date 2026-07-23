@@ -322,7 +322,9 @@ const IC={
   download:'<path d="M12 3.5v11M7.5 10l4.5 4.5L16.5 10M5 20.5h14"/>',
   settings:'<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.1"/><circle cx="15" cy="12" r="2.1"/><circle cx="8" cy="17" r="2.1"/>',
   trash:'<path d="M4 7h16M9.5 7V5.3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V7M6.6 7l.9 12.1a1.5 1.5 0 0 0 1.5 1.4h6a1.5 1.5 0 0 0 1.5-1.4L17.4 7"/>',
-  check:'<path d="M5 12.5l4.5 4.5L19 7"/>'
+  check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+  chat:'<path d="M4 4.5h16a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H12l-5 4v-4H4A1.5 1.5 0 0 1 2.5 15V6A1.5 1.5 0 0 1 4 4.5z"/><path d="M7.5 9.5h9M7.5 12.5h6"/>',
+  send:'<path d="M4.5 12h13M11 5.5l6.5 6.5L11 18.5"/>'
 };
 function svg(name,size){ const s=size||18; return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+IC[name]+'</svg>'; }
 
@@ -672,15 +674,69 @@ function renderReport(view){
 }
 function renderCard(view){ let card=view.querySelector('.report-card'); if(!card){ card=document.createElement('div'); card.className='report-card'; view.appendChild(card); } card.innerHTML=lastReport?mdToHtml(lastReport):'<p style="color:var(--muted);margin:0">Bấm nút phía trên để tạo tổng kết việc đã và chưa làm trong tuần.</p>'; }
 
+/* ---------- Tab Hỏi AI ---------- */
+let askLog=[];
+function askContext(){
+  const arr=tasks.slice(); const key=t=>t.doneAt||t.fixedStart||t.createdAt||'';
+  arr.sort((a,b)=>String(key(b)).localeCompare(String(key(a))));
+  return arr.slice(0,400).map(t=>({ viec:t.title, nhom:t.category, uu_tien:t.priority, phut:t.durationMin, trang_thai:t.status==='done'?'da_xong':'chua_xong', xong_luc:t.doneAt?t.doneAt.slice(0,16):null, co_dinh_luc:t.fixed?(t.fixedStart||'').slice(0,16):null, han:t.due||null, da_xep_lich:(t.blocks||[]).map(b=>b.start.slice(0,16)) }));
+}
+async function askAI(q){
+  const ctx=askContext(); const habs=habits.map(h=>({thoi_quen:h.title,ngay:h.days,gio:h.time||'linh hoat',phut:h.durationMin}));
+  const sys=`Bạn là trợ lý phân tích lịch làm việc của một người làm kinh doanh ở Việt Nam. Hôm nay là ${ymd(today())} (${weekdayVN(today())}).
+Dữ liệu công việc (JSON, tối đa 400 mục gần nhất): ${JSON.stringify(ctx)}
+Thói quen (JSON): ${JSON.stringify(habs)}
+Trả lời câu hỏi CHỈ dựa trên dữ liệu trên, bằng tiếng Việt, ngắn gọn, thân thiện. Có thể tính tổng giờ, đếm việc, liệt kê theo ngày/tuần/nhóm. Nếu dữ liệu không đủ để trả lời (ví dụ hỏi về mốc thời gian chưa có dữ liệu), hãy nói thẳng là chưa có dữ liệu cho khoảng đó. Dùng markdown đơn giản (- gạch đầu dòng, **đậm**). KHÔNG bịa số liệu.`;
+  return await callClaude(sys,q,1300,null);
+}
+async function doAsk(q){
+  q=(q||'').trim(); if(!q) return;
+  if(!settings.apiKey){ openSettings(); toast('Cần API key để hỏi AI'); return; }
+  askLog.push({role:'user',text:q}); askLog.push({role:'ai',text:'Đang xem lịch của bạn…',pending:true}); render();
+  try{ const ans=await askAI(q); askLog[askLog.length-1]={role:'ai',text:ans||'(chưa có trả lời)'}; }
+  catch(e){ console.warn(e); askLog[askLog.length-1]={role:'ai',text:'Xin lỗi, AI đang bận. Anh thử lại giúp mình nhé.'}; }
+  render();
+}
+function askBubble(m){
+  const wrap=document.createElement('div'); wrap.style.cssText='display:flex;margin:9px 0;'+(m.role==='user'?'justify-content:flex-end':'justify-content:flex-start');
+  const b=document.createElement('div');
+  b.style.cssText='max-width:82%;padding:11px 14px;border-radius:15px;font-size:14.5px;line-height:1.55;'+(m.role==='user'
+    ?'background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-bottom-right-radius:5px'
+    :'background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:5px');
+  if(m.role==='ai'&&!m.pending) b.innerHTML=mdToHtml(m.text); else b.textContent=m.text;
+  if(m.pending) b.style.opacity='.6';
+  wrap.appendChild(b); return wrap;
+}
+function renderAsk(view){
+  const head=document.createElement('div'); head.className='vhead'; head.innerHTML='<div><h2>Hỏi AI</h2><span class="sub">Hỏi bất cứ điều gì về lịch &amp; việc của bạn</span></div>'; view.appendChild(head);
+  if(!settings.apiKey){ const n=document.createElement('div'); n.className='note'; n.style.margin='6px 0 14px'; n.textContent='Tính năng Hỏi AI cần API key Anthropic (mục Trợ lý AI trong Cài đặt). Dán key xong là hỏi được.'; view.appendChild(n);
+    const b=document.createElement('button'); b.className='btn btn-primary'; b.textContent='Mở Cài đặt'; b.onclick=openSettings; view.appendChild(b); return; }
+  const chat=document.createElement('div'); chat.id='askChat'; chat.style.cssText='padding:4px 2px 12px';
+  if(!askLog.length){
+    const hint=document.createElement('div'); hint.style.cssText='color:var(--muted);font-size:14px;margin:10px 0 12px'; hint.textContent='Ví dụ bạn có thể hỏi:'; chat.appendChild(hint);
+    const chips=document.createElement('div'); chips.style.cssText='display:flex;flex-wrap:wrap;gap:8px';
+    ['Tuần này tôi làm được bao nhiêu giờ?','Tôi còn việc nào quá hạn không?','Nhóm việc nào tôi tốn nhiều thời gian nhất?','Hôm nay tôi có lịch gì?'].forEach(q=>{ const c=document.createElement('button'); c.className='chip'; c.textContent=q; c.onclick=()=>doAsk(q); chips.appendChild(c); });
+    chat.appendChild(chips);
+  } else askLog.forEach(m=>chat.appendChild(askBubble(m)));
+  view.appendChild(chat);
+  const bar=document.createElement('div'); bar.style.cssText='display:flex;gap:8px;align-items:flex-end;position:sticky;bottom:0;background:var(--bg);padding:10px 0 6px;border-top:1px solid var(--line)';
+  const inp=document.createElement('textarea'); inp.rows=1; inp.placeholder='Hỏi về lịch, việc đã làm, thống kê…'; inp.style.cssText='flex:1;resize:none;padding:11px 13px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14.5px;outline:none;max-height:120px';
+  inp.addEventListener('input',()=>{ inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,120)+'px'; });
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); const v=inp.value; inp.value=''; doAsk(v); } });
+  const send=document.createElement('button'); send.className='btn btn-primary'; send.style.padding='11px 14px'; send.innerHTML=svg('send'); send.title='Gửi'; send.onclick=()=>{ const v=inp.value; inp.value=''; doAsk(v); };
+  bar.appendChild(inp); bar.appendChild(send); view.appendChild(bar);
+  if(askLog.length) requestAnimationFrame(()=>window.scrollTo({top:document.body.scrollHeight})); else setTimeout(()=>inp.focus(),40);
+}
+
 /* ---------- Render + điều hướng ---------- */
 function render(){
   const view=document.getElementById('view'); view.innerHTML='';
-  if(currentTab==='plan') renderPlan(view); else if(currentTab==='tasks') renderTasks(view); else if(currentTab==='habits') renderHabits(view); else renderReport(view);
+  if(currentTab==='plan') renderPlan(view); else if(currentTab==='tasks') renderTasks(view); else if(currentTab==='habits') renderHabits(view); else if(currentTab==='report') renderReport(view); else renderAsk(view);
   const chua=tasks.filter(t=>t.status!=='done').length;
   document.getElementById('brandDate').textContent=weekdayVN(today())+', '+fmtDate(ymd(today()))+(chua?(' · '+chua+' việc chờ'):'');
   const mb=document.getElementById('modeBadge'); mb.classList.toggle('on',!!settings.apiKey); document.getElementById('modeText').textContent=settings.apiKey?'AI đang bật':'Chế độ cơ bản';
 }
-const TABS=[['plan','Lịch','cal'],['tasks','Việc','tasks'],['habits','Thói quen','repeat'],['report','Báo cáo','chart']];
+const TABS=[['plan','Lịch','cal'],['tasks','Việc','tasks'],['habits','Thói quen','repeat'],['report','Báo cáo','chart'],['ask','Hỏi AI','chat']];
 function setActiveNav(){ document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===currentTab)); }
 function goTab(k){ currentTab=k; setActiveNav(); render(); }
 
