@@ -271,6 +271,14 @@
     <div class="field"><label>Mã ứng dụng Google (Client ID)</label><input id="gClientId" placeholder="....apps.googleusercontent.com" autocomplete="off"></div>
     <div id="gStatus" style="margin:4px 0 2px"></div>
     <div class="note">Đăng nhập Google + đồng bộ lịch 2 chiều. Chỉ chạy trên link web (điện thoại/máy), không chạy khi mở file trực tiếp. Cần dán Client ID (miễn phí, tạo 1 lần) — nhắn tôi để xem hướng dẫn.</div>
+    <div class="sec-title">Nhắc việc</div>
+    <div class="checkrow"><label><input type="checkbox" id="remindOn"> Nhắc trước khi tới giờ</label></div>
+    <div class="field"><label>Nhắc trước (phút)</label><select id="remindMin"><option value="5">5 phút</option><option value="10">10 phút</option><option value="15">15 phút</option><option value="30">30 phút</option><option value="60">60 phút</option></select></div>
+    <div class="note">Chỉ nhắc khi app đang mở trên trình duyệt (lần đầu bật sẽ hỏi xin quyền thông báo).</div>
+    <div class="sec-title">Dữ liệu &amp; sao lưu</div>
+    <div class="checkrow" style="gap:10px"><button class="btn btn-secondary" id="btnExport" type="button">Xuất dữ liệu</button><button class="btn btn-secondary" id="btnImport" type="button">Nhập dữ liệu</button></div>
+    <div class="note">Xuất tải về một file sao lưu (việc, thói quen, cài đặt). Nhập để khôi phục — trên máy này hoặc máy khác. Dữ liệu chỉ nằm trên máy bạn, nên sao lưu định kỳ cho chắc.</div>
+    <input type="file" id="importFile" accept="application/json,.json" style="display:none">
     <div class="modal-actions"><button class="btn btn-ghost" id="btnCloseSettings">Đóng</button><button class="btn btn-primary" id="btnSaveSettings">Lưu</button></div>
   </div>
 </div>
@@ -289,7 +297,7 @@ const CATS=['Họp','Gọi điện','Email','Khách hàng','Tài chính','Nhân 
 let tasks=load(LS_TASKS,[]);
 let habits=load(LS_HAB,[]);
 let habitBlocks=[];
-let settings=Object.assign({apiKey:'',model:'claude-opus-4-8',workStart:'08:00',workEnd:'18:00',lunchOn:true,lunchStart:'12:00',lunchEnd:'13:30',workSat:true,workSun:false,buffer:10,maxChunk:120,minChunk:30,googleClientId:'',googleConnected:false,googleUser:null}, load(LS_SET,{}));
+let settings=Object.assign({apiKey:'',model:'claude-opus-4-8',workStart:'08:00',workEnd:'18:00',lunchOn:true,lunchStart:'12:00',lunchEnd:'13:30',workSat:true,workSun:false,buffer:10,maxChunk:120,minChunk:30,googleClientId:'',googleConnected:false,googleUser:null,remindOn:false,remindMin:10}, load(LS_SET,{}));
 let currentTab='plan', taskFilter='chua', lastReport=null;
 
 function load(k,def){ try{return JSON.parse(localStorage.getItem(k))??def;}catch(e){return def;} }
@@ -793,9 +801,52 @@ function setupUI(){
   document.getElementById('sideSet').onclick=openSettings;
   document.getElementById('btnCloseSettings').onclick=()=>document.getElementById('overlay').classList.remove('open');
   const overlay=document.getElementById('overlay'); overlay.onclick=e=>{ if(e.target===overlay) overlay.classList.remove('open'); };
-  document.getElementById('btnSaveSettings').onclick=()=>{ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>settings[id]=document.getElementById(id).value); settings.apiKey=document.getElementById('apiKey').value.trim(); settings.googleClientId=document.getElementById('gClientId').value.trim(); settings.lunchOn=document.getElementById('lunchOn').checked; settings.workSat=document.getElementById('workSat').checked; settings.workSun=document.getElementById('workSun').checked; save(); runScheduler(); render(); renderGoogleStatus(); toast('Đã lưu & sắp lại lịch'); };
+  document.getElementById('btnSaveSettings').onclick=()=>{ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>settings[id]=document.getElementById(id).value); settings.apiKey=document.getElementById('apiKey').value.trim(); settings.googleClientId=document.getElementById('gClientId').value.trim(); settings.lunchOn=document.getElementById('lunchOn').checked; settings.workSat=document.getElementById('workSat').checked; settings.workSun=document.getElementById('workSun').checked; settings.remindOn=document.getElementById('remindOn').checked; settings.remindMin=+document.getElementById('remindMin').value||10; save(); runScheduler(); render(); renderGoogleStatus();
+    if(settings.remindOn && 'Notification' in window && Notification.permission==='default'){ Notification.requestPermission().then(()=>startReminders()); } else startReminders();
+    toast('Đã lưu & sắp lại lịch'); };
+  document.getElementById('btnExport').onclick=exportData;
+  document.getElementById('btnImport').onclick=()=>document.getElementById('importFile').click();
+  document.getElementById('importFile').onchange=e=>{ if(e.target.files&&e.target.files[0]) importData(e.target.files[0]); e.target.value=''; };
 }
-function openSettings(){ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>document.getElementById(id).value=settings[id]); document.getElementById('apiKey').value=settings.apiKey; document.getElementById('gClientId').value=settings.googleClientId||''; document.getElementById('lunchOn').checked=settings.lunchOn; document.getElementById('workSat').checked=settings.workSat; document.getElementById('workSun').checked=settings.workSun; renderGoogleStatus(); document.getElementById('overlay').classList.add('open'); }
+function openSettings(){ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>document.getElementById(id).value=settings[id]); document.getElementById('apiKey').value=settings.apiKey; document.getElementById('gClientId').value=settings.googleClientId||''; document.getElementById('lunchOn').checked=settings.lunchOn; document.getElementById('workSat').checked=settings.workSat; document.getElementById('workSun').checked=settings.workSun; document.getElementById('remindOn').checked=!!settings.remindOn; document.getElementById('remindMin').value=String(settings.remindMin||10); renderGoogleStatus(); document.getElementById('overlay').classList.add('open'); }
+
+/* ---------- Sao lưu & khôi phục dữ liệu ---------- */
+function exportData(){
+  const s=Object.assign({},settings); delete s.apiKey; // không đưa API key vào file sao lưu
+  const data={app:'Complete Later',version:2,exportedAt:new Date().toISOString(),tasks,habits,settings:s};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='complete-later-backup-'+ymd(today())+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  toast('Đã tải file sao lưu');
+}
+function importData(file){
+  const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result);
+    if(!d || (!Array.isArray(d.tasks) && !Array.isArray(d.habits))) throw new Error('File không đúng định dạng');
+    if(!confirm('Khôi phục sẽ THAY dữ liệu hiện tại bằng dữ liệu trong file. Tiếp tục?')) return;
+    if(Array.isArray(d.tasks)) tasks=d.tasks;
+    if(Array.isArray(d.habits)) habits=d.habits;
+    if(d.settings){ const keepKey=settings.apiKey; settings=Object.assign(settings,d.settings); if(!d.settings.apiKey) settings.apiKey=keepKey; }
+    migrate(); save(); runScheduler(); render(); renderGoogleStatus();
+    document.getElementById('overlay').classList.remove('open'); toast('Đã khôi phục dữ liệu từ file');
+  }catch(e){ console.warn(e); toast('Nhập lỗi: '+(e.message||e)); } };
+  r.readAsText(file);
+}
+
+/* ---------- Nhắc việc (thông báo trình duyệt) ---------- */
+let remindTimer=null; const remindSent=new Set();
+function upcomingBlocks(){ const list=[];
+  tasks.forEach(t=>{ if(t.status==='done') return; (t.blocks||[]).forEach(b=>list.push({start:b.start,title:t.title})); });
+  habitBlocks.forEach(hb=>{ const dd=hb.start.slice(0,10); if((hb.habit.doneDates||[]).includes(dd)) return; list.push({start:hb.start,title:hb.habit.title}); });
+  return list;
+}
+function remindTick(){ if(!settings.remindOn) return; if(!('Notification' in window) || Notification.permission!=='granted') return;
+  const now=Date.now(), lead=(settings.remindMin||10)*60000;
+  upcomingBlocks().forEach(e=>{ const s=Date.parse(e.start); if(isNaN(s)) return; const key=e.start+'|'+e.title;
+    if(s>now && s-now<=lead && !remindSent.has(key)){ remindSent.add(key);
+      try{ new Notification('Sắp tới: '+e.title, {body:'Bắt đầu lúc '+hhmm(e.start), tag:key}); }catch(err){} } });
+}
+function startReminders(){ stopReminders(); if(!settings.remindOn) return; remindTick(); remindTimer=setInterval(remindTick,30000); }
+function stopReminders(){ if(remindTimer){ clearInterval(remindTimer); remindTimer=null; } }
 
 /* ---------- Popup thêm/sửa việc khi bấm vào ô lịch ---------- */
 let evOverlay=null;
@@ -938,5 +989,5 @@ function handleLoginParam(){ try{ const p=new URLSearchParams(location.search); 
 } }catch(e){} }
 
 /* ---------- Khởi động ---------- */
-migrate(); runScheduler(); setupUI(); buildMini(); setupMic(); injectIcon(); render(); gAutoConnect(); handleLoginParam();
+migrate(); runScheduler(); setupUI(); buildMini(); setupMic(); injectIcon(); render(); gAutoConnect(); handleLoginParam(); startReminders();
 </script>
