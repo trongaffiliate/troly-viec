@@ -291,6 +291,10 @@
     <div class="checkrow"><label><input type="checkbox" id="lunchOn"> Nghỉ trưa</label></div>
     <div class="row2"><div class="field"><label>Nghỉ từ</label><input type="time" id="lunchStart"></div><div class="field"><label>Đến</label><input type="time" id="lunchEnd"></div></div>
     <div class="checkrow"><label><input type="checkbox" id="workSat"> Làm thứ Bảy</label><label><input type="checkbox" id="workSun"> Làm Chủ nhật</label></div>
+    <div class="sec-title">Nhóm việc</div>
+    <div id="catEditor"></div>
+    <button class="btn btn-secondary" id="btnCatAdd" type="button" style="margin-top:4px">+ Thêm nhóm</button>
+    <div class="note">Thêm / sửa / xoá nhóm việc theo ý bạn (ví dụ: Sản xuất, Kho vận, Đối tác…). Giữ tối thiểu 1 nhóm.</div>
     <div class="sec-title">Trợ lý AI (không bắt buộc)</div>
     <div class="field"><label>Chìa khoá API (Anthropic)</label><input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off"></div>
     <div class="field"><label>Mức trí tuệ AI</label><select id="model"><option value="claude-opus-4-8">Cao cấp — thông minh nhất (mặc định)</option><option value="claude-haiku-4-5-20251001">Tiết kiệm — nhanh &amp; rẻ hơn</option></select></div>
@@ -324,12 +328,16 @@
 const LS_TASKS='trolyviec_tasks_v2', LS_SET='trolyviec_set_v2', LS_HAB='trolyviec_hab_v2', LS_DOC='trolyviec_docimported_v1';
 const HORIZON=14;
 const PR_LABEL={P1:'Rất gấp',P2:'Quan trọng',P3:'Bình thường',P4:'Thong thả'};
-const CATS=['Họp','Gọi điện','Email','Khách hàng','Tài chính','Nhân sự','Marketing','Cá nhân','Khác'];
+const DEFAULT_CATS=['Họp','Gọi điện','Email','Khách hàng','Tài chính','Nhân sự','Marketing','Cá nhân','Khác'];
+let CATS=DEFAULT_CATS.slice();
 
 let tasks=load(LS_TASKS,[]);
 let habits=load(LS_HAB,[]);
 let habitBlocks=[];
 let settings=Object.assign({apiKey:'',model:'claude-opus-4-8',workStart:'08:00',workEnd:'18:00',lunchOn:true,lunchStart:'12:00',lunchEnd:'13:30',workSat:true,workSun:false,buffer:10,maxChunk:120,minChunk:30,googleClientId:'',googleConnected:false,googleUser:null,remindOn:false,remindMin:10,remindSound:true,googleDocId:'',googleDocAuto:false}, load(LS_SET,{}));
+if(Array.isArray(settings.categories)&&settings.categories.length) CATS=settings.categories.slice(); else settings.categories=CATS.slice();
+let catDraft=CATS.slice();
+function catList(cur){ const a=CATS.slice(); if(cur&&!a.includes(cur)) a.unshift(cur); return a; }
 let currentTab='plan', taskFilter='chua', lastReport=null;
 
 function load(k,def){ try{return JSON.parse(localStorage.getItem(k))??def;}catch(e){return def;} }
@@ -660,7 +668,7 @@ function taskRow(t){
   const c=document.createElement('div'); c.className='ctrls';
   const pr=document.createElement('select'); pr.className='sel'; ['P1','P2','P3','P4'].forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=PR_LABEL[p]; if(t.priority===p)o.selected=true; pr.appendChild(o); }); pr.onchange=()=>{ t.priority=pr.value; save(); };
   const du=document.createElement('select'); du.className='sel'; const durs=[15,30,45,60,90,120,180,240]; durs.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=(m<60?m+' phút':(m/60)+' giờ'); if(t.durationMin===m)o.selected=true; du.appendChild(o); }); if(!durs.includes(t.durationMin)){ const o=document.createElement('option'); o.value=t.durationMin; o.textContent=t.durationMin+' phút'; o.selected=true; du.appendChild(o);} du.onchange=()=>{ t.durationMin=+du.value; save(); };
-  const ca=document.createElement('select'); ca.className='sel'; CATS.forEach(x=>{ const o=document.createElement('option'); o.value=x; o.textContent=x; if(t.category===x)o.selected=true; ca.appendChild(o); }); ca.onchange=()=>{ t.category=ca.value; save(); };
+  const ca=document.createElement('select'); ca.className='sel'; catList(t.category).forEach(x=>{ const o=document.createElement('option'); o.value=x; o.textContent=x; if(t.category===x)o.selected=true; ca.appendChild(o); }); ca.onchange=()=>{ t.category=ca.value; save(); };
   c.appendChild(labeled('Ưu tiên',pr)); c.appendChild(labeled('Thời lượng',du)); c.appendChild(labeled('Nhóm',ca));
   const fixLbl=document.createElement('label'); fixLbl.className='lbl'; const fixCb=document.createElement('input'); fixCb.type='checkbox'; fixCb.checked=t.fixed; fixLbl.appendChild(fixCb); fixLbl.appendChild(document.createTextNode('Cố định giờ')); c.appendChild(fixLbl);
   const dueWrap=labeled('Hạn', mkDate(t.due,(v)=>{ t.due=v||null; save(); }));
@@ -697,7 +705,7 @@ function habitRow(h){
   c.appendChild(dayWrap);
   const tm=document.createElement('input'); tm.type='time'; tm.className='inp'; tm.value=h.time||''; tm.onchange=()=>{ h.time=tm.value; scheduleAndRender(); }; c.appendChild(labeled('Giờ (trống = linh hoạt)',tm));
   const du=document.createElement('select'); du.className='sel'; [15,30,45,60,90,120].forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=(m<60?m+' phút':(m/60)+' giờ'); if(h.durationMin===m)o.selected=true; du.appendChild(o); }); du.onchange=()=>{ h.durationMin=+du.value; scheduleAndRender(); }; c.appendChild(labeled('Thời lượng',du));
-  const ca=document.createElement('select'); ca.className='sel'; CATS.forEach(x=>{ const o=document.createElement('option'); o.value=x; o.textContent=x; if(h.category===x)o.selected=true; ca.appendChild(o); }); ca.onchange=()=>{ h.category=ca.value; save(); }; c.appendChild(labeled('Nhóm',ca));
+  const ca=document.createElement('select'); ca.className='sel'; catList(h.category).forEach(x=>{ const o=document.createElement('option'); o.value=x; o.textContent=x; if(h.category===x)o.selected=true; ca.appendChild(o); }); ca.onchange=()=>{ h.category=ca.value; save(); }; c.appendChild(labeled('Nhóm',ca));
   row.appendChild(c); return row;
 }
 function renderHabits(view){
@@ -960,15 +968,23 @@ function setupUI(){
   document.getElementById('sideSet').onclick=openSettings;
   document.getElementById('btnCloseSettings').onclick=()=>document.getElementById('overlay').classList.remove('open');
   const overlay=document.getElementById('overlay'); overlay.onclick=e=>{ if(e.target===overlay) overlay.classList.remove('open'); };
-  document.getElementById('btnSaveSettings').onclick=()=>{ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>settings[id]=document.getElementById(id).value); settings.apiKey=document.getElementById('apiKey').value.trim(); settings.googleClientId=document.getElementById('gClientId').value.trim(); settings.googleDocId=document.getElementById('gDocId').value.trim(); settings.googleDocAuto=document.getElementById('gDocAuto').checked; settings.lunchOn=document.getElementById('lunchOn').checked; settings.workSat=document.getElementById('workSat').checked; settings.workSun=document.getElementById('workSun').checked; settings.remindOn=document.getElementById('remindOn').checked; settings.remindSound=document.getElementById('remindSound').checked; settings.remindMin=+document.getElementById('remindMin').value||10; save(); runScheduler(); render(); renderGoogleStatus();
+  document.getElementById('btnSaveSettings').onclick=()=>{ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>settings[id]=document.getElementById(id).value); settings.apiKey=document.getElementById('apiKey').value.trim(); settings.googleClientId=document.getElementById('gClientId').value.trim(); settings.googleDocId=document.getElementById('gDocId').value.trim(); settings.googleDocAuto=document.getElementById('gDocAuto').checked; settings.lunchOn=document.getElementById('lunchOn').checked; settings.workSat=document.getElementById('workSat').checked; settings.workSun=document.getElementById('workSun').checked; settings.remindOn=document.getElementById('remindOn').checked; settings.remindSound=document.getElementById('remindSound').checked; settings.remindMin=+document.getElementById('remindMin').value||10;
+    const cats=catDraft.map(c=>c.trim()).filter(Boolean).filter((c,i,a)=>a.indexOf(c)===i); if(cats.length){ CATS=cats; settings.categories=CATS.slice(); }
+    save(); runScheduler(); render(); renderGoogleStatus();
     if(settings.remindOn && 'Notification' in window && Notification.permission==='default'){ Notification.requestPermission().then(()=>startReminders()); } else startReminders();
     toast('Đã lưu & sắp lại lịch'); };
   document.getElementById('btnExport').onclick=exportData;
   document.getElementById('btnImport').onclick=()=>document.getElementById('importFile').click();
   document.getElementById('importFile').onchange=e=>{ if(e.target.files&&e.target.files[0]) importData(e.target.files[0]); e.target.value=''; };
   document.getElementById('btnDocImport').onclick=()=>{ settings.googleDocId=document.getElementById('gDocId').value.trim(); save(); gImportDoc(false); };
+  document.getElementById('btnCatAdd').onclick=()=>{ catDraft.push(''); renderCatEditor(); const inps=document.querySelectorAll('#catEditor input'); if(inps.length) inps[inps.length-1].focus(); };
 }
-function openSettings(){ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>document.getElementById(id).value=settings[id]); document.getElementById('apiKey').value=settings.apiKey; document.getElementById('gClientId').value=settings.googleClientId||''; document.getElementById('gDocId').value=settings.googleDocId||''; document.getElementById('gDocAuto').checked=!!settings.googleDocAuto; document.getElementById('lunchOn').checked=settings.lunchOn; document.getElementById('workSat').checked=settings.workSat; document.getElementById('workSun').checked=settings.workSun; document.getElementById('remindOn').checked=!!settings.remindOn; document.getElementById('remindSound').checked=settings.remindSound!==false; document.getElementById('remindMin').value=String(settings.remindMin||10); renderGoogleStatus(); document.getElementById('overlay').classList.add('open'); }
+function openSettings(){ ['workStart','workEnd','lunchStart','lunchEnd','model'].forEach(id=>document.getElementById(id).value=settings[id]); document.getElementById('apiKey').value=settings.apiKey; document.getElementById('gClientId').value=settings.googleClientId||''; document.getElementById('gDocId').value=settings.googleDocId||''; document.getElementById('gDocAuto').checked=!!settings.googleDocAuto; document.getElementById('lunchOn').checked=settings.lunchOn; document.getElementById('workSat').checked=settings.workSat; document.getElementById('workSun').checked=settings.workSun; document.getElementById('remindOn').checked=!!settings.remindOn; document.getElementById('remindSound').checked=settings.remindSound!==false; document.getElementById('remindMin').value=String(settings.remindMin||10); catDraft=CATS.slice(); renderCatEditor(); renderGoogleStatus(); document.getElementById('overlay').classList.add('open'); }
+function renderCatEditor(){ const box=document.getElementById('catEditor'); if(!box) return; box.innerHTML='';
+  catDraft.forEach((c,i)=>{ const row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;align-items:center;margin-bottom:8px';
+    const inp=document.createElement('input'); inp.className='inp'; inp.style.cssText='flex:1;padding:9px 11px;font-size:14px'; inp.value=c; inp.placeholder='Tên nhóm việc'; inp.oninput=()=>{ catDraft[i]=inp.value; };
+    const del=document.createElement('button'); del.type='button'; del.className='mini-b'; del.innerHTML=svg('trash',16); del.title='Xoá nhóm'; del.onclick=()=>{ catDraft.splice(i,1); renderCatEditor(); };
+    row.appendChild(inp); row.appendChild(del); box.appendChild(row); }); }
 
 /* ---------- Sao lưu & khôi phục dữ liệu ---------- */
 function exportData(){
@@ -985,7 +1001,7 @@ function importData(file){
     if(!confirm('Khôi phục sẽ THAY dữ liệu hiện tại bằng dữ liệu trong file. Tiếp tục?')) return;
     if(Array.isArray(d.tasks)) tasks=d.tasks;
     if(Array.isArray(d.habits)) habits=d.habits;
-    if(d.settings){ const keepKey=settings.apiKey; settings=Object.assign(settings,d.settings); if(!d.settings.apiKey) settings.apiKey=keepKey; }
+    if(d.settings){ const keepKey=settings.apiKey; settings=Object.assign(settings,d.settings); if(!d.settings.apiKey) settings.apiKey=keepKey; if(Array.isArray(settings.categories)&&settings.categories.length) CATS=settings.categories.slice(); }
     migrate(); save(); runScheduler(); render(); renderGoogleStatus();
     document.getElementById('overlay').classList.remove('open'); toast('Đã khôi phục dữ liệu từ file');
   }catch(e){ console.warn(e); toast('Nhập lỗi: '+(e.message||e)); } };
@@ -1070,7 +1086,7 @@ function openEventModal(task, presetStart){
 
   const r2=document.createElement('div'); r2.className='row2';
   const durCol=document.createElement('div'); durCol.className='field'; durCol.innerHTML='<label>Thời lượng</label>'; const durSel=mkSelect([[15,'15 phút'],[30,'30 phút'],[45,'45 phút'],[60,'1 giờ'],[90,'1 giờ 30'],[120,'2 giờ'],[180,'3 giờ'],[240,'4 giờ']], t.durationMin); durCol.appendChild(durSel);
-  const catCol=document.createElement('div'); catCol.className='field'; catCol.innerHTML='<label>Nhóm việc</label>'; const catSel=mkSelect(CATS.map(c=>[c,c]), t.category); catCol.appendChild(catSel);
+  const catCol=document.createElement('div'); catCol.className='field'; catCol.innerHTML='<label>Nhóm việc</label>'; const catSel=mkSelect(catList(t.category).map(c=>[c,c]), t.category); catCol.appendChild(catSel);
   r2.appendChild(durCol); r2.appendChild(catCol); m.appendChild(r2);
 
   const fP=document.createElement('div'); fP.className='field'; fP.innerHTML='<label>Mức ưu tiên</label>'; const prSel=mkSelect(['P1','P2','P3','P4'].map(p=>[p,PR_LABEL[p]]), t.priority); fP.appendChild(prSel); m.appendChild(fP);
