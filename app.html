@@ -474,7 +474,7 @@ function learnedProfile(){
 async function aiParse(text){
   const t=today(); const prof=learnedProfile();
   const sys=`Bạn là trợ lý sắp lịch cho người làm kinh doanh ở Việt Nam. Người dùng nói/gõ ý tưởng công việc bằng tiếng Việt (có thể nhiều việc). Tách thành các công việc riêng, mỗi việc gồm:
-- title: mô tả ngắn gọn tiếng Việt.
+- title: TÊN VIỆC ngắn gọn, chỉ giữ nội dung chính. BỎ các từ dẫn nhập/thừa như "hôm nay tôi cần", "tôi muốn", "tôi phải", "nhớ", "làm ơn". Nếu câu nói bị LẶP (đọc lại 2 lần) thì gộp thành một. Ví dụ: "Hôm nay tôi cần làm affiliate nutra ở thị trường Mexico" → "Làm affiliate nutra thị trường Mexico".
 - fixed: true nếu là cuộc hẹn/họp có giờ cố định; false nếu linh hoạt.
 - date: "YYYY-MM-DD". Hôm nay ${ymd(t)} (${weekdayVN(t)}). Suy luận ngày tương đối. Nếu không rõ, để "".
 - time: "HH:MM" 24h nếu có giờ cụ thể, ngược lại "".
@@ -504,10 +504,20 @@ function detectTime(s){ const m=s.match(/(\d{1,2})\s*(?:h|giờ|:)\s*(\d{1,2})?/
 function detectDuration(s){ let m=s.match(/(\d+(?:[.,]\d+)?)\s*(tiếng|giờ|h\b)/); if(m) return Math.round(parseFloat(m[1].replace(',','.'))*60); m=s.match(/(\d+)\s*phút/); if(m) return +m[1]; return null; }
 function detectPriority(s){ if(/gấp|khẩn|quan trọng nhất|ưu tiên|asap/.test(s)) return 'P1'; if(/quan trọng|cần|phải/.test(s)) return 'P2'; if(/khi rảnh|thong thả|không gấp|nhẹ nhàng/.test(s)) return 'P4'; return 'P3'; }
 function detectCategory(s){ if(/họp|meeting/.test(s)) return 'Họp'; if(/gọi|call|điện thoại/.test(s)) return 'Gọi điện'; if(/email|mail/.test(s)) return 'Email'; if(/khách|client|đối tác/.test(s)) return 'Khách hàng'; if(/tiền|thanh toán|hoá đơn|hóa đơn|lương|ngân hàng|báo giá|tài chính/.test(s)) return 'Tài chính'; if(/nhân viên|tuyển|nhân sự|phỏng vấn/.test(s)) return 'Nhân sự'; if(/quảng cáo|marketing|fanpage|content|bài đăng/.test(s)) return 'Marketing'; return 'Khác'; }
+function cleanTitle(t){
+  let s=(t||'').replace(/\s+/g,' ').trim(); let low=s.toLowerCase();
+  const dup=low.match(/^(.{4,60}?)\s+\1(\s|$)/); if(dup){ s=s.slice(dup[1].length+1).replace(/^\s+/,''); low=s.toLowerCase(); }
+  const strip=re=>{ const m=low.match(re); if(m){ s=s.slice(m[0].length); low=s.toLowerCase(); } };
+  strip(/^((hôm nay|ngày mai|ngày kia|ngày mốt|sáng nay|chiều nay|tối nay|sáng mai|chiều mai|tuần sau|cuối tuần)\s*,?\s*)+/);
+  strip(/^((tôi|mình|em|anh|t)\s+)?(cần|muốn|phải|định|nhớ|nên|sẽ)\s+(phải\s+)?/);
+  strip(/^(làm|là|hãy|nhớ|cần|phải|đi)\s+/);
+  s=s.trim(); if(s.length<2) s=(t||'').replace(/\s+/g,' ').trim();
+  return s.charAt(0).toUpperCase()+s.slice(1);
+}
 function ruleParse(text){
   const parts=text.split(/\n+|(?<=[.!;])\s+/).map(x=>x.trim()).filter(x=>x.length>1);
   return (parts.length?parts:[text.trim()]).map(t=>{ const s=t.toLowerCase(); const date=detectDate(s), time=detectTime(s); const fixed=!!time; const fdate=date||(fixed?ymd(today()):null); const cat=detectCategory(s);
-    return {id:uid(),title:t.replace(/\s+/g,' ').trim(),category:cat,priority:detectPriority(s),durationMin:detectDuration(s)||(cat==='Họp'?60:30),due:(!fixed&&date)?date:null,fixed,fixedStart:fixed?fdate+'T'+time:null,status:'chua',locked:false,blocks:[],createdAt:new Date().toISOString(),doneAt:null}; });
+    return {id:uid(),title:cleanTitle(t),category:cat,priority:detectPriority(s),durationMin:detectDuration(s)||(cat==='Họp'?60:30),due:(!fixed&&date)?date:null,fixed,fixedStart:fixed?fdate+'T'+time:null,status:'chua',locked:false,blocks:[],createdAt:new Date().toISOString(),doneAt:null}; });
 }
 async function handleAdd(){
   const el=document.getElementById('input'); const text=el.value.trim(); if(!text){el.focus();return;}
@@ -905,9 +915,12 @@ let recog=null,recording=false;
 function setupMic(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition; const btn=document.getElementById('btnMic');
   if(!SR){ btn.style.display='none'; return; }
-  recog=new SR(); recog.lang='vi-VN'; recog.interimResults=true; recog.continuous=false; let base='';
-  recog.onstart=()=>{ recording=true; btn.classList.add('recording'); btn.innerHTML=svg('mic')+'<span>Dừng</span>'; base=document.getElementById('input').value; };
-  recog.onresult=e=>{ let txt=''; for(let i=0;i<e.results.length;i++) txt+=e.results[i][0].transcript; document.getElementById('input').value=(base?base+' ':'')+txt; autoGrow(); };
+  recog=new SR(); recog.lang='vi-VN'; recog.interimResults=true; recog.continuous=false; let finalText='';
+  recog.onstart=()=>{ recording=true; btn.classList.add('recording'); btn.innerHTML=svg('mic')+'<span>Dừng</span>'; finalText=(document.getElementById('input').value||'').trim(); };
+  recog.onresult=e=>{ let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){ const r=e.results[i]; const tr=((r[0]&&r[0].transcript)||'').trim(); if(!tr) continue;
+      if(r.isFinal) finalText=(finalText?finalText+' ':'')+tr; else interim+=tr+' '; }
+    document.getElementById('input').value=(finalText+(interim?' '+interim.trim():'')).trim(); autoGrow(); };
   recog.onerror=e=>{ recording=false; btn.classList.remove('recording'); btn.innerHTML=svg('mic')+'<span>Nói</span>'; toast(e.error==='not-allowed'?'Trình duyệt chặn micro — hãy cho phép, hoặc gõ tay.':'Không nghe được — thử lại hoặc gõ tay.'); };
   recog.onend=()=>{ recording=false; btn.classList.remove('recording'); btn.innerHTML=svg('mic')+'<span>Nói</span>'; };
   btn.onclick=()=>{ if(recording)recog.stop(); else{ try{recog.start();}catch(e){toast('Thử lại sau một giây.');} } };
